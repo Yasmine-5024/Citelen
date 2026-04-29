@@ -1,0 +1,10 @@
+flask
+flask-cors
+python-dotenv
+requests
+lxml
+pymupdf
+openai
+beautifulsoup4
+bcrypt
+PyJWT
