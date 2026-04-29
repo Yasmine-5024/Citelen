@@ -1,0 +1,3 @@
+Citlen is a full-stack tool for auditing academic paper citations. It parses PDFs through GROBID, then runs four parallel analyses: an AI agent that flags potentially AI-generated or          
+  unsupported citations, a missing citations detector that finds uncited claims and suggests supporting papers, a reliability scorer that evaluates each reference on venue quality, freshness, DOI
+   validity, and how well its abstract actually supports the sentence it's cited in, and a citation network graph showing clustering and influence patterns. The interface shows the original PDF    alongside the analysis results, with a light/dark theme and a per-citation breakdown of every score.
