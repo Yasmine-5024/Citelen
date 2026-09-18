@@ -94,24 +94,45 @@ def _get_recommendations(paper_ids: list[str], limit: int = 10) -> list[dict]:
 
 def _get_paper_ids_from_citations(existing_citations: list[dict]) -> list[str]:
     """
-    Look up Semantic Scholar paper IDs for existing citations using their DOIs.
+    Look up Semantic Scholar paper IDs for existing citations.
+    Tries DOI first; falls back to title search for citations without a DOI.
     Returns list of SS paper IDs to use as recommendation seeds.
     """
+    headers = {"x-api-key": SS_API_KEY} if SS_API_KEY else {}
     ids = []
-    for c in existing_citations[:10]:  # limit lookups
+    seen: set[str] = set()
+
+    for c in existing_citations[:20]:  # scan more citations to get enough seeds
+        if len(ids) >= 10:
+            break
         doi = c.get("doi")
-        if not doi:
-            continue
+        title = (c.get("title") or "").strip()
+
         try:
-            r = requests.get(
-                f"https://api.semanticscholar.org/graph/v1/paper/DOI:{doi}",
-                params={"fields": "paperId"},
-                timeout=(3, 8),
-            )
-            if r.status_code == 200:
-                pid = r.json().get("paperId")
-                if pid:
-                    ids.append(pid)
+            pid = None
+            if doi:
+                r = requests.get(
+                    f"https://api.semanticscholar.org/graph/v1/paper/DOI:{doi}",
+                    params={"fields": "paperId"},
+                    headers=headers,
+                    timeout=(3, 8),
+                )
+                if r.status_code == 200:
+                    pid = r.json().get("paperId")
+            if not pid and title:
+                r = requests.get(
+                    SS_SEARCH_URL,
+                    params={"query": title, "fields": "paperId,title", "limit": 1},
+                    headers=headers,
+                    timeout=(3, 8),
+                )
+                if r.status_code == 200:
+                    data = r.json().get("data", [])
+                    if data:
+                        pid = data[0].get("paperId")
+            if pid and pid not in seen:
+                seen.add(pid)
+                ids.append(pid)
         except Exception:
             continue
     return ids

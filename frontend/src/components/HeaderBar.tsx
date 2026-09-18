@@ -169,11 +169,8 @@ export default function HeaderBar({
             {reliabilityScore !== null && (
               <HealthPill
                 icon="📊"
-                value={`${reliabilityScore}%`}
-                color={
-                  reliabilityScore >= 70 ? C.green :
-                  reliabilityScore >= 40 ? C.yellow : C.red
-                }
+                value={reliabilityScore >= 75 ? "Strong" : reliabilityScore >= 50 ? "Moderate" : "Weak"}
+                color={reliabilityScore >= 75 ? C.green : reliabilityScore >= 50 ? C.yellow : C.red}
                 label="reliability"
               />
             )}

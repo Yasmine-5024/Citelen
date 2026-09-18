@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTheme } from "../theme";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -25,16 +26,15 @@ export interface FormatCheckData {
   summary: FormatSummary;
 }
 
-// ─── Colors ───────────────────────────────────────────────────────────────────
+// ─── Semantic colours (stable across themes) ──────────────────────────────────
 
-const C = {
-  bg: "#0a0e1a", surface: "#0f1624", card: "#111827", cardBorder: "#1e293b",
-  accent: "#6366f1", text: "#f1f5f9", textMuted: "#94a3b8", textDim: "#64748b",
-  border: "#1e293b", green: "#10b981", yellow: "#f59e0b", orange: "#f97316",
-  red: "#ef4444", blue: "#3b82f6",
-};
+const _green  = "#10b981";
+const _yellow = "#f59e0b";
+const _orange = "#f97316";
+const _red    = "#ef4444";
+const _blue   = "#3b82f6";
 
-const SEV_COLOR = { error: C.red, warning: C.orange, info: C.blue };
+const SEV_COLOR = { error: _red, warning: _orange, info: _blue };
 const SEV_ICON  = { error: "✕", warning: "⚠", info: "ℹ" };
 
 const TYPE_LABEL: Record<string, string> = {
@@ -66,8 +66,9 @@ const TYPE_DESC: Record<string, string> = {
 // ─── Score Ring ───────────────────────────────────────────────────────────────
 
 function ScoreRing({ score }: { score: number }) {
+  const { C } = useTheme();
   const size = 96, r = 38, circ = 2 * Math.PI * r;
-  const color = score >= 80 ? C.green : score >= 60 ? C.yellow : C.orange;
+  const color = score >= 80 ? _green : score >= 60 ? _yellow : _orange;
   return (
     <div style={{ position: "relative", width: size, height: size, flexShrink: 0 }}>
       <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
@@ -90,6 +91,7 @@ function ScoreRing({ score }: { score: number }) {
 // ─── Stat Pill ─────────────────────────────────────────────────────────────────
 
 function SevPill({ count, label, color }: { count: number; label: string; color: string }) {
+  const { C } = useTheme();
   return (
     <div style={{
       display: "flex", flexDirection: "column", alignItems: "center",
@@ -105,6 +107,7 @@ function SevPill({ count, label, color }: { count: number; label: string; color:
 // ─── Issue Group ──────────────────────────────────────────────────────────────
 
 function IssueGroup({ type, issues }: { type: string; issues: FormatIssue[] }) {
+  const { C } = useTheme();
   const [open, setOpen] = useState(false);
   if (issues.length === 0) return null;
 
@@ -120,13 +123,9 @@ function IssueGroup({ type, issues }: { type: string; issues: FormatIssue[] }) {
       borderLeft: `3px solid ${color}`,
       borderRadius: 10, marginBottom: 8, overflow: "hidden",
     }}>
-      {/* Header */}
       <div
         onClick={() => setOpen(o => !o)}
-        style={{
-          display: "flex", alignItems: "center", gap: 10,
-          padding: "10px 14px", cursor: "pointer",
-        }}
+        style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", cursor: "pointer" }}
       >
         <span style={{
           fontSize: 11, fontWeight: 700, color: "rgba(0,0,0,0.6)",
@@ -147,7 +146,6 @@ function IssueGroup({ type, issues }: { type: string; issues: FormatIssue[] }) {
         <span style={{ fontSize: 10, color: C.textDim }}>{open ? "▴" : "▾"}</span>
       </div>
 
-      {/* Citation list */}
       {open && (
         <div style={{ borderTop: `1px solid ${C.border}`, padding: "6px 10px 10px" }}>
           {issues.map((issue, i) => (
@@ -156,10 +154,7 @@ function IssueGroup({ type, issues }: { type: string; issues: FormatIssue[] }) {
               padding: "6px 6px",
               borderBottom: i < issues.length - 1 ? `1px solid ${C.border}33` : "none",
             }}>
-              <span style={{
-                fontSize: 11, fontWeight: 700, color,
-                fontFamily: "monospace", flexShrink: 0, width: 30,
-              }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color, fontFamily: "monospace", flexShrink: 0, width: 30 }}>
                 {issue.citation_id}
               </span>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -186,6 +181,7 @@ function IssueGroup({ type, issues }: { type: string; issues: FormatIssue[] }) {
 // ─── Loading ──────────────────────────────────────────────────────────────────
 
 function LoadingState() {
+  const { C } = useTheme();
   return (
     <div style={{ padding: "16px 16px 24px" }}>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, padding: "32px 0 24px" }}>
@@ -207,6 +203,7 @@ function LoadingState() {
 // ─── Empty ────────────────────────────────────────────────────────────────────
 
 function EmptyState() {
+  const { C } = useTheme();
   return (
     <div style={{ padding: "0 16px 24px" }}>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, padding: "40px 0 28px", textAlign: "center" }}>
@@ -236,6 +233,7 @@ export default function QualityTab({
   data: FormatCheckData | null;
   loading: boolean;
 }) {
+  const { C } = useTheme();
   const [sevFilter, setSevFilter] = useState<"all" | "error" | "warning" | "info">("all");
 
   if (loading) return <LoadingState />;
@@ -243,14 +241,12 @@ export default function QualityTab({
 
   const { issues, summary } = data;
 
-  // Group issues by type, filtered by severity
   const filtered = sevFilter === "all" ? issues : issues.filter(i => i.severity === sevFilter);
   const byType = filtered.reduce<Record<string, FormatIssue[]>>((acc, issue) => {
     (acc[issue.type] = acc[issue.type] ?? []).push(issue);
     return acc;
   }, {});
 
-  // Sort groups: errors first, then warnings, then info
   const sevOrder = { error: 0, warning: 1, info: 2 };
   const sortedTypes = Object.keys(byType).sort((a, b) => {
     const sa = sevOrder[byType[a][0]?.severity ?? "info"] ?? 2;
@@ -259,7 +255,7 @@ export default function QualityTab({
     return byType[b].length - byType[a].length;
   });
 
-  const scoreColor = summary.score >= 80 ? C.green : summary.score >= 60 ? C.yellow : C.orange;
+  const scoreColor = summary.score >= 80 ? _green : summary.score >= 60 ? _yellow : _orange;
 
   return (
     <div style={{ padding: "16px 16px 24px" }}>
@@ -281,7 +277,7 @@ export default function QualityTab({
 
       {/* Score + severity pills */}
       <div style={{
-        background: C.card, border: `1px solid ${C.cardBorder}`,
+        background: C.card, border: `1px solid ${C.border}`,
         borderRadius: 14, padding: "16px 18px", marginBottom: 14,
         display: "flex", alignItems: "center", gap: 20,
       }}>
@@ -296,9 +292,9 @@ export default function QualityTab({
               : `${summary.total_issues} issue${summary.total_issues !== 1 ? "s" : ""} across ${summary.total_citations} references`}
           </div>
           <div style={{ display: "flex", gap: 6 }}>
-            <SevPill count={summary.errors}   label="Errors"   color={C.red}    />
-            <SevPill count={summary.warnings} label="Warnings" color={C.orange} />
-            <SevPill count={summary.info}     label="Notes"    color={C.blue}   />
+            <SevPill count={summary.errors}   label="Errors"   color={_red}    />
+            <SevPill count={summary.warnings} label="Warnings" color={_orange} />
+            <SevPill count={summary.info}     label="Notes"    color={_blue}   />
           </div>
         </div>
       </div>
@@ -306,8 +302,8 @@ export default function QualityTab({
       {summary.total_issues === 0 ? (
         <div style={{
           textAlign: "center", padding: "28px 0",
-          color: C.green, fontSize: 14, fontWeight: 600,
-          background: `${C.green}08`, border: `1px solid ${C.green}20`,
+          color: _green, fontSize: 14, fontWeight: 600,
+          background: `${_green}08`, border: `1px solid ${_green}20`,
           borderRadius: 12,
         }}>
           ✓ Reference list formatting looks consistent
@@ -317,8 +313,7 @@ export default function QualityTab({
           {/* Severity filter */}
           <div style={{ display: "flex", gap: 5, marginBottom: 12, flexWrap: "wrap" }}>
             {(["all", "error", "warning", "info"] as const).map(s => {
-              const cnt = s === "all" ? issues.length
-                : issues.filter(i => i.severity === s).length;
+              const cnt = s === "all" ? issues.length : issues.filter(i => i.severity === s).length;
               if (cnt === 0 && s !== "all") return null;
               const color = s === "all" ? C.accent : SEV_COLOR[s];
               const isActive = sevFilter === s;
@@ -339,7 +334,6 @@ export default function QualityTab({
             })}
           </div>
 
-          {/* Issue groups */}
           <div style={{ animation: "fadeIn 0.3s ease" }}>
             {sortedTypes.map(type => (
               <IssueGroup key={type} type={type} issues={byType[type]} />

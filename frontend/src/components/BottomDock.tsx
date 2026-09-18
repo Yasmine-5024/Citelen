@@ -97,9 +97,9 @@ export default function BottomDock({
     { id: "bias",      icon: <Scale size={16} />,         label: "Bias",      loading: biasLoading },
     { id: "quality",   icon: <ScanSearch size={16} />,    label: "Quality",   loading: formatLoading },
     { id: "integrity", icon: <FlaskConical size={16} />,  label: "Integrity", loading: integrityLoading },
-    { id: "actions",   icon: <ClipboardList size={16} />, label: "Actions" },
-    { id: "chat",      icon: <MessageSquare size={16} />, label: "Chat" },
-    { id: "draft",     icon: <PenLine size={16} />,       label: "Draft" },
+    // { id: "actions",   icon: <ClipboardList size={16} />, label: "Actions" },
+    // { id: "chat",      icon: <MessageSquare size={16} />, label: "Chat" },
+    // { id: "draft",     icon: <PenLine size={16} />,       label: "Draft" },
   ];
 
   return (
@@ -147,7 +147,7 @@ export default function BottomDock({
         <div style={{ flex: 1 }} />
 
         {/* Workspace button */}
-        <button
+        {/* <button
           onClick={() => onToggle("workspace")}
           title="Peer Review Workspace"
           style={{
@@ -174,7 +174,7 @@ export default function BottomDock({
         >
           <LayoutDashboard size={16} />
           <span style={{ fontSize: 10, whiteSpace: "nowrap", writingMode: "vertical-rl", transform: "rotate(180deg)", letterSpacing: 0.5 }}>Workspace</span>
-        </button>
+        </button> */}
       </div>
     </>
   );

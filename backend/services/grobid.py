@@ -1,25 +1,44 @@
+import re
 import requests
 from lxml import etree
+
+_DOI_RE = re.compile(r'\b(10\.\d{4,9}/[^\s,;"\'\]>]+)', re.IGNORECASE)
+
+# Patterns that indicate GROBID extracted a venue/journal name as the paper title.
+# When matched, the title is cleared so the pipeline falls back to DOI-only lookup.
+_VENUE_TITLE_RE = re.compile(
+    r'^(proceedings of|in proceedings|journal of|transactions on|conference on|'
+    r'symposium on|workshop on|annual meeting|acm trans\.|ieee trans\.|'
+    r'advances in|lecture notes)',
+    re.IGNORECASE,
+)
 
 GROBID_URL = "http://localhost:8070"
 NS = {"tei": "http://www.tei-c.org/ns/1.0"}
 
 
 def extract_with_grobid(pdf_path: str) -> dict:
-    """Send PDF to GROBID, get back structured citations + metadata."""
+    """Send PDF to GROBID, get back structured citations + metadata.
+    Tries with Crossref consolidation first; falls back to no consolidation."""
 
-    with open(pdf_path, "rb") as f:
-        response = requests.post(
-            f"{GROBID_URL}/api/processFulltextDocument",
-            files={"input": f},
-            data={"consolidateCitations": "1"},  # verifies against Crossref
-            timeout=60,
-        )
+    for consolidate in ("1", "0"):
+        try:
+            with open(pdf_path, "rb") as f:
+                response = requests.post(
+                    f"{GROBID_URL}/api/processFulltextDocument",
+                    files={"input": f},
+                    data={"consolidateCitations": consolidate},
+                    timeout=90,
+                )
+            if response.status_code == 200:
+                if consolidate == "0":
+                    print("[grobid] used fallback (no consolidation)")
+                return parse_tei(response.text)
+            print(f"[grobid] consolidate={consolidate} → HTTP {response.status_code}, retrying…")
+        except Exception as e:
+            print(f"[grobid] consolidate={consolidate} → error: {e}, retrying…")
 
-    if response.status_code != 200:
-        raise Exception(f"GROBID failed: {response.status_code}")
-
-    return parse_tei(response.text)
+    raise Exception("GROBID failed after both consolidation attempts")
 
 
 def parse_tei(xml_str: str) -> dict:
@@ -111,6 +130,10 @@ def parse_citation(ref, index: int) -> dict:
         or ref.findtext(".//tei:title[@level='m']", namespaces=NS)
         or ""
     )
+    # If the extracted title looks like a venue/proceedings name, GROBID mis-labelled
+    # the venue as the title. Clear it so the pipeline relies on DOI lookup instead.
+    if title and _VENUE_TITLE_RE.match(title.strip()):
+        title = ""
 
     # Authors
     authors = []
@@ -128,9 +151,14 @@ def parse_citation(ref, index: int) -> dict:
         when = date_el.get("when", "")
         year = int(when[:4]) if when and when[:4].isdigit() else None
 
-    # DOI
+    # DOI — prefer GROBID's structured field; fall back to regex scan of raw text
     doi_el = ref.find(".//tei:idno[@type='DOI']", NS)
     doi = doi_el.text.strip() if doi_el is not None and doi_el.text else None
+    if not doi:
+        raw_text = " ".join(ref.itertext())
+        m = _DOI_RE.search(raw_text)
+        if m:
+            doi = m.group(1).rstrip(".")  # strip trailing punctuation
 
     # Venue
     venue = (
@@ -161,8 +189,6 @@ def _get_sentence_for_ref(ref) -> str:
          around this ref (text before ref in same paragraph + ref text + tail text),
          then expand to a full sentence boundary.
     """
-    import re as _re
-
     parent = ref.getparent()
     if parent is None:
         return ""
@@ -170,48 +196,15 @@ def _get_sentence_for_ref(ref) -> str:
     local = parent.tag.split("}")[-1] if "}" in parent.tag else parent.tag
 
     # ── Case 1: GROBID gave us a proper <s> sentence element ─────────────────
+    # Walk up to the parent <p> to get the full paragraph
     if local == "s":
+        p = parent.getparent()
+        if p is not None:
+            return "".join(p.itertext()).strip()
         return "".join(parent.itertext()).strip()
 
-    # ── Case 2: ref is inside a <p> — find the sentence around this ref ───────
-    # Walk the parent's children to reconstruct text with a marker at the ref pos
-    MARKER = "\x00"
-    parts = [parent.text or ""]
-    for child in parent:
-        if child is ref:
-            parts.append(MARKER)
-        parts.append("".join(child.itertext()))
-        parts.append(child.tail or "")
-    full = "".join(parts)
-
-    marker_pos = full.find(MARKER)
-    if marker_pos == -1:
-        # Fallback: return whole paragraph text (no truncation)
-        return "".join(parent.itertext()).strip()
-
-    # Remove marker from text for clean output
-    clean = full.replace(MARKER, "")
-    marker_pos_clean = marker_pos  # marker is 1 char, so positions before it are same
-
-    # Find sentence boundaries around marker position
-    # Look backward for sentence start
-    start = marker_pos_clean
-    for i in range(marker_pos_clean - 1, -1, -1):
-        if clean[i] in ".!?" and i + 1 < len(clean) and clean[i + 1] == " ":
-            start = i + 2
-            break
-        if i == 0:
-            start = 0
-
-    # Look forward for sentence end
-    end = len(clean)
-    for i in range(marker_pos_clean, len(clean)):
-        if clean[i] in ".!?" and (i + 1 >= len(clean) or clean[i + 1] in " \n"):
-            end = i + 1
-            break
-
-    sentence = clean[start:end].strip()
-    return sentence if sentence else "".join(parent.itertext()).strip()
+    # ── Case 2: ref is inside a <p> — return the full paragraph ───────────────
+    return "".join(parent.itertext()).strip()
 
 
 def extract_in_text_citations(body) -> dict:

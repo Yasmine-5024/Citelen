@@ -1,0 +1,70 @@
+{
+  "filename": "citeview_test.pdf",
+  "topic": "In-Situ Citation Analysis for Scholarly Reading (HCI / UIST)",
+  "paper_title": "CiteView: In-Situ Multi-Modal Citation Analysis for Scholarly Reading",
+  "description": "Real UIST'26 paper. 3 real citations redacted from reference list (to test missing citations detection). 3 fake citations appended (to test AI hallucination detection).",
+  "redacted_real_citations": [
+    {
+      "ref_num": 6,
+      "title": "CiteSee: Augmenting Citations in Scientific Papers with Persistent and Personalized Historical Context",
+      "search_text": "CiteSee: Augmenting Citations",
+      "reason": "Core related work explicitly discussed in intro and related work sections",
+      "redacted": true
+    },
+    {
+      "ref_num": 11,
+      "title": "Augmenting Scientific Papers with Just-in-Time, Position-Sensitive Definitions of Terms and Symbols",
+      "search_text": "Just-in-Time,",
+      "reason": "Directly cited as foundational augmented reading work",
+      "redacted": true
+    },
+    {
+      "ref_num": 23,
+      "title": "CiteRead: Integrating Localized Citation Contexts into Scientific Paper Reading",
+      "search_text": "CiteRead: Integrating Localized",
+      "reason": "Core related work explicitly discussed in intro",
+      "redacted": true
+    }
+  ],
+  "injected_fake_citations": [
+    {
+      "ref_num": 31,
+      "title": "CitePulse: Adaptive Citation Intent Prediction for Interactive Scholarly Reading",
+      "authors": [
+        "Nakamura, T.",
+        "Hashimoto, K.",
+        "Tanaka, R."
+      ],
+      "year": 2024,
+      "venue": "Proceedings of the 2024 CHI Conference on Human Factors in Computing Systems (CHI '24)",
+      "doi": null,
+      "ground_truth": "FAKE"
+    },
+    {
+      "ref_num": 32,
+      "title": "ContextRef: Grounding Citation Explanations in Retrieval-Augmented Evidence for Academic Readers",
+      "authors": [
+        "Okafor, C.",
+        "Mensah, E.",
+        "Diallo, A."
+      ],
+      "year": 2025,
+      "venue": "Proceedings of the ACM Symposium on User Interface Software and Technology (UIST '25)",
+      "doi": null,
+      "ground_truth": "FAKE"
+    },
+    {
+      "ref_num": 33,
+      "title": "ScholarLens: Multi-Granularity Semantic Alignment for Cross-Paper Claim Verification",
+      "authors": [
+        "Bergmann, F.",
+        "Richter, M.",
+        "Klein, A."
+      ],
+      "year": 2024,
+      "venue": "Findings of the Association for Computational Linguistics (ACL 2024)",
+      "doi": null,
+      "ground_truth": "FAKE"
+    }
+  ]
+}

@@ -340,6 +340,7 @@ function initPositions(data: CitationNetworkData, nodes: GraphNode[]): NodePos[]
   return positions;
 }
 
+
 function ForceGraph({ data }: { data: CitationNetworkData }) {
   const { C } = useTheme();
   const orange = "#f97316";
@@ -352,47 +353,34 @@ function ForceGraph({ data }: { data: CitationNetworkData }) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   const hoveredIdRef = useRef<number | null>(null);
 
-  // Build cluster membership map for cohesion force
   const clusterMembership = useRef<Map<number, number[]>>(new Map());
 
   useEffect(() => {
-    // Initialize positions
     posRef.current = initPositions(data, nodes);
     frameRef.current = 0;
 
-    // Build cluster membership
     const membership = new Map<number, number[]>();
     let idx = 0;
     for (let ci = 0; ci < data.clusters.length; ci++) {
       const members: number[] = [];
-      for (let pi = 0; pi < data.clusters[ci].papers.length; pi++) {
-        members.push(idx++);
-      }
+      for (let pi = 0; pi < data.clusters[ci].papers.length; pi++) members.push(idx++);
       membership.set(ci, members);
     }
     clusterMembership.current = membership;
 
     function step() {
-      // Freeze physics while a node is hovered so it doesn't shake under the cursor
-      if (hoveredIdRef.current !== null) {  // freeze physics while hovering
+      if (hoveredIdRef.current !== null) {
         rafRef.current = requestAnimationFrame(step);
         return;
       }
-
       const frame = frameRef.current;
       if (frame >= 280) return;
 
-      const alpha = Math.max(0.01, 1 - frame / 200);
       const pos = posRef.current;
       const n = pos.length;
+      const alpha = Math.max(0.01, 1 - frame / 200);
 
-      // 1. Velocity damping
-      for (let i = 0; i < n; i++) {
-        pos[i].vx *= 0.86;
-        pos[i].vy *= 0.86;
-      }
-
-      // 2. Node-node repulsion
+      for (let i = 0; i < n; i++) { pos[i].vx *= 0.86; pos[i].vy *= 0.86; }
       for (let i = 0; i < n; i++) {
         for (let j = i + 1; j < n; j++) {
           const dx = pos[i].x - pos[j].x;
@@ -402,53 +390,34 @@ function ForceGraph({ data }: { data: CitationNetworkData }) {
           const d = Math.sqrt(d2);
           if (d > 200) continue;
           const f = 1100 / d2;
-          const fx = (dx / d) * f;
-          const fy = (dy / d) * f;
-          pos[i].vx += fx;
-          pos[i].vy += fy;
-          pos[j].vx -= fx;
-          pos[j].vy -= fy;
+          const fx = (dx / d) * f; const fy = (dy / d) * f;
+          pos[i].vx += fx; pos[i].vy += fy;
+          pos[j].vx -= fx; pos[j].vy -= fy;
         }
       }
-
-      // 3. Edge spring
       for (const edge of edges) {
         const { i, j } = edge;
-        const dx = pos[j].x - pos[i].x;
-        const dy = pos[j].y - pos[i].y;
+        const dx = pos[j].x - pos[i].x; const dy = pos[j].y - pos[i].y;
         const d = Math.sqrt(dx * dx + dy * dy) || 1;
         const f = (d - 65) * 0.04 * alpha;
-        const fx = (dx / d) * f;
-        const fy = (dy / d) * f;
-        pos[i].vx += fx;
-        pos[i].vy += fy;
-        pos[j].vx -= fx;
-        pos[j].vy -= fy;
+        const fx = (dx / d) * f; const fy = (dy / d) * f;
+        pos[i].vx += fx; pos[i].vy += fy;
+        pos[j].vx -= fx; pos[j].vy -= fy;
       }
-
-      // 4. Cluster cohesion
       clusterMembership.current.forEach((members) => {
         if (members.length === 0) return;
         let sumX = 0, sumY = 0;
-        for (const m of members) {
-          sumX += pos[m].x;
-          sumY += pos[m].y;
-        }
-        const centX = sumX / members.length;
-        const centY = sumY / members.length;
+        for (const m of members) { sumX += pos[m].x; sumY += pos[m].y; }
+        const centX = sumX / members.length; const centY = sumY / members.length;
         for (const m of members) {
           pos[m].vx += (centX - pos[m].x) * 0.018 * alpha;
           pos[m].vy += (centY - pos[m].y) * 0.018 * alpha;
         }
       });
-
-      // 5. Center gravity
       for (let i = 0; i < n; i++) {
         pos[i].vx += (W / 2 - pos[i].x) * 0.004;
         pos[i].vy += (H / 2 - pos[i].y) * 0.004;
       }
-
-      // 6. Apply velocities + clamp
       for (let i = 0; i < n; i++) {
         const r = nodes[i].radius;
         pos[i].x = Math.max(r, Math.min(W - r, pos[i].x + pos[i].vx));
@@ -461,13 +430,12 @@ function ForceGraph({ data }: { data: CitationNetworkData }) {
     }
 
     rafRef.current = requestAnimationFrame(step);
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   const pos = posRef.current;
+
   const hoveredNode = hoveredIdx != null ? (nodes[hoveredIdx] ?? null) : null;
 
   return (
@@ -484,7 +452,7 @@ function ForceGraph({ data }: { data: CitationNetworkData }) {
           <rect width={W} height={H} fill={C.surface} />
 
           {/* Edges */}
-          {pos.length === nodes.length && edges.map((edge, ei) => {
+          {edges.map((edge, ei) => {
             const a = pos[edge.i];
             const b = pos[edge.j];
             if (!a || !b) return null;
@@ -501,26 +469,32 @@ function ForceGraph({ data }: { data: CitationNetworkData }) {
           })}
 
           {/* Nodes */}
-          {pos.length === nodes.length && nodes.map((node, ni) => {
+          {nodes.map((node, ni) => {
             const p = pos[ni];
             if (!p) return null;
             const isHovered = ni === hoveredIdx;
-            const r = isHovered ? node.radius + 3 : node.radius;
-            const fillOpacity = isHovered ? 0.5 : 0.2;
+            const fillOpacity = isHovered ? 0.55 : 0.2;
             return (
               <g
                 key={node.id}
                 transform={`translate(${p.x},${p.y})`}
-                onMouseEnter={() => { hoveredIdRef.current = ni; setHoveredIdx(ni); }}
-                onMouseLeave={() => { hoveredIdRef.current = null; setHoveredIdx(null); }}
                 style={{ cursor: "pointer" }}
               >
+                {/* Larger invisible hit area prevents hover flicker */}
                 <circle
-                  r={r}
+                  r={node.radius + 6}
+                  fill="transparent"
+                  stroke="none"
+                  onMouseEnter={() => { hoveredIdRef.current = ni; setHoveredIdx(ni); }}
+                  onMouseLeave={() => { hoveredIdRef.current = null; setHoveredIdx(null); }}
+                />
+                <circle
+                  r={node.radius}
                   fill={node.color}
                   fillOpacity={fillOpacity}
                   stroke={node.color}
                   strokeWidth={isHovered ? 2.5 : 1.5}
+                  style={{ pointerEvents: "none" }}
                 />
                 <text
                   textAnchor="middle"
@@ -539,7 +513,7 @@ function ForceGraph({ data }: { data: CitationNetworkData }) {
       </div>
 
       {/* Tooltip */}
-      {hoveredNode && hoveredIdx != null && pos.length === nodes.length && (() => {
+      {hoveredNode && hoveredIdx != null && (() => {
         return (
           <div style={{
             marginTop: 8,

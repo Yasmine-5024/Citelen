@@ -13,6 +13,7 @@ export interface ReliabilityCitation {
   verdict: string;
   flags: string[];
   claim: string;
+  reasoning?: string;
   warning: string | null;
   abstractFound?: boolean;
   citationCount?: number;
@@ -472,7 +473,7 @@ function CategoryPieChart({
 
 // ─── Citation Table ───────────────────────────────────────────────────────────
 
-type SortKey = "relevance" | "year" | "impact";
+type SortKey = "verdict" | "year" | "impact";
 
 function CitationTable({ citations, aiCitations, expandedId, onExpandChange }: {
   citations: ReliabilityCitation[];
@@ -481,7 +482,8 @@ function CitationTable({ citations, aiCitations, expandedId, onExpandChange }: {
   onExpandChange: (id: string | null) => void;
 }) {
   const { C } = useTheme();
-  const [sort, setSort] = useState<{ by: SortKey; dir: 1 | -1 }>({ by: "relevance", dir: -1 });
+  const VERDICT_ORDER: Record<string, number> = { unsupported: 0, weak: 1, moderate: 2, strong: 3, no_data: 4 };
+  const [sort, setSort] = useState<{ by: SortKey; dir: 1 | -1 }>({ by: "verdict", dir: 1 });
   const expandedRowRef  = useRef<HTMLTableRowElement>(null);
 
   // Scroll expanded row into view when it changes
@@ -495,9 +497,9 @@ function CitationTable({ citations, aiCitations, expandedId, onExpandChange }: {
     setSort(prev => prev.by === by ? { by, dir: (-prev.dir) as 1 | -1 } : { by, dir: -1 });
 
   const sorted = [...citations].sort((a, b) => {
-    if (sort.by === "relevance") return sort.dir * ((a.relevance ?? -1) - (b.relevance ?? -1));
-    if (sort.by === "year")      return sort.dir * ((parseInt(a.year) || 0) - (parseInt(b.year) || 0));
-    if (sort.by === "impact")    return sort.dir * ((a.citationCount ?? 0) - (b.citationCount ?? 0));
+    if (sort.by === "verdict") return sort.dir * ((VERDICT_ORDER[a.verdict] ?? 4) - (VERDICT_ORDER[b.verdict] ?? 4));
+    if (sort.by === "year")    return sort.dir * ((parseInt(a.year) || 0) - (parseInt(b.year) || 0));
+    if (sort.by === "impact")  return sort.dir * ((a.citationCount ?? 0) - (b.citationCount ?? 0));
     return 0;
   });
 
@@ -523,8 +525,7 @@ function CitationTable({ citations, aiCitations, expandedId, onExpandChange }: {
             <tr style={{ borderBottom: `1px solid ${C.border}` }}>
               <th style={{ padding: "8px 6px 8px 10px", textAlign: "left", fontSize: 12, color: C.textDim, textTransform: "uppercase", letterSpacing: 0.4, width: 34 }}>ID</th>
               <th style={{ padding: "8px 6px", textAlign: "left", fontSize: 12, color: C.textDim, textTransform: "uppercase", letterSpacing: 0.4 }}>Title</th>
-              <th style={{ padding: "8px 6px", textAlign: "center", fontSize: 12, color: C.textDim, textTransform: "uppercase", letterSpacing: 0.4, width: 82 }}>Verdict</th>
-              <SortTh label="Rel."  by="relevance" width={52} />
+              <SortTh label="Verdict" by="verdict" width={90} />
               <SortTh label="Year"  by="year"      width={44} />
               <SortTh label="Cited" by="impact"    width={52} />
             </tr>
@@ -554,16 +555,10 @@ function CitationTable({ citations, aiCitations, expandedId, onExpandChange }: {
                     <td style={{ padding: "8px 6px", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", maxWidth: 0 }} title={c.title}>
                       <span style={{ fontSize: 13, color: C.textMuted }}>{c.title}</span>
                     </td>
-                    <td style={{ padding: "8px 6px", textAlign: "center" }}>
+                    <td style={{ padding: "8px 6px", textAlign: "right" }}>
                       <span style={{ fontSize: 11.5, fontWeight: 600, color, background: `${color}18`, padding: "2px 7px", borderRadius: 20, whiteSpace: "nowrap" }}>
                         {VERDICT_LABEL[c.verdict] ?? c.verdict}
                       </span>
-                    </td>
-                    <td style={{ padding: "8px 6px", textAlign: "right" }}>
-                      {c.relevance != null
-                        ? <span style={{ fontSize: 13, fontWeight: 700, color, fontFamily: "monospace" }}>{c.relevance}%</span>
-                        : <span style={{ fontSize: 12, color: C.textDim, fontStyle: "italic" }}>N/A</span>
-                      }
                     </td>
                     <td style={{ padding: "8px 6px", textAlign: "right", fontSize: 12, color: C.textMuted, fontFamily: "monospace" }}>
                       {c.year || "—"}
@@ -575,7 +570,7 @@ function CitationTable({ citations, aiCitations, expandedId, onExpandChange }: {
                   </tr>
                   {isSelected && (
                     <tr key={`${c.id}-detail`}>
-                      <td colSpan={6} style={{ padding: "0 0 8px 0", borderBottom: i < sorted.length - 1 ? `1px solid ${C.border}44` : "none" }}>
+                      <td colSpan={5} style={{ padding: "0 0 8px 0", borderBottom: i < sorted.length - 1 ? `1px solid ${C.border}44` : "none" }}>
                         <div style={{
                           margin: "0 8px",
                           background: C.card, border: `1px solid ${rowColor}33`,
@@ -645,11 +640,28 @@ function CitationTable({ citations, aiCitations, expandedId, onExpandChange }: {
                             );
                           })()}
 
-                          {/* GPT relevance explanation */}
+                          {/* GPT reasoning (chain-of-thought) */}
+                          {c.reasoning && (
+                            <div style={{ marginBottom: 10 }}>
+                              <div style={{ fontSize: 12, fontWeight: 600, color: C.textDim, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 5 }}>
+                                AI reasoning
+                              </div>
+                              <div style={{
+                                fontSize: 13.5, color: C.textMuted, lineHeight: 1.65,
+                                background: C.surface, padding: "9px 12px",
+                                borderRadius: 8, border: `1px solid ${C.border}`,
+                                wordBreak: "break-word",
+                              }}>
+                                {c.reasoning}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* GPT verdict note */}
                           {c.claim && (
                             <div style={{ marginBottom: 0 }}>
                               <div style={{ fontSize: 12, fontWeight: 600, color: C.textDim, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 5 }}>
-                                Relevance assessment
+                                Verdict
                               </div>
                               <div style={{
                                 fontSize: 13.5, color: C.textMuted, lineHeight: 1.65,
@@ -797,8 +809,8 @@ export default function ReliabilityTab({
       <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
         <StatBox value={summary.total} label="Citations" color={C.accent} />
         <StatBox
-          value={summary.avg_relevance > 0 ? `${summary.avg_relevance}%` : "—"}
-          label="Avg. Relevance"
+          value={summary.avg_relevance > 0 ? (summary.avg_relevance >= 75 ? "Strong" : summary.avg_relevance >= 50 ? "Moderate" : "Weak") : "—"}
+          label="Reliability"
           color={summary.avg_relevance > 0 ? scoreColor(summary.avg_relevance, "#10b981", "#f59e0b", "#ef4444") : C.textDim}
           sub={summary.no_abstract ? `${summary.no_abstract} not assessed` : undefined}
         />

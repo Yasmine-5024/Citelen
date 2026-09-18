@@ -1,0 +1,490 @@
+{
+  "description": "Ground truth dataset for RefLens AI Detection evaluation. 3 test papers, 10 citations each (5 REAL, 5 FAKE). Total: 30 citations.",
+  "test_papers": [
+    {
+      "filename": "test_paper_1.pdf",
+      "topic": "Deep Learning Fundamentals",
+      "paper_title": "Advances in Deep Learning Architectures: A Survey",
+      "citations": [
+        {
+          "ref_num": 1,
+          "title": "Attention Is All You Need",
+          "authors": ["Vaswani, A.", "Shazeer, N.", "Parmar, N.", "Uszkoreit, J.", "Jones, L.", "Gomez, A.", "Kaiser, L.", "Polosukhin, I."],
+          "year": 2017,
+          "venue": "Advances in Neural Information Processing Systems (NeurIPS)",
+          "doi": "10.48550/arXiv.1706.03762",
+          "ground_truth": "REAL"
+        },
+        {
+          "ref_num": 2,
+          "title": "Deep Residual Learning for Image Recognition",
+          "authors": ["He, K.", "Zhang, X.", "Ren, S.", "Sun, J."],
+          "year": 2016,
+          "venue": "Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR)",
+          "doi": "10.1109/CVPR.2016.90",
+          "ground_truth": "REAL"
+        },
+        {
+          "ref_num": 3,
+          "title": "Generative Adversarial Nets",
+          "authors": ["Goodfellow, I.", "Pouget-Abadie, J.", "Mirza, M.", "Xu, B.", "Warde-Farley, D.", "Ozair, S.", "Courville, A.", "Bengio, Y."],
+          "year": 2014,
+          "venue": "Advances in Neural Information Processing Systems (NeurIPS)",
+          "doi": "10.48550/arXiv.1406.2661",
+          "ground_truth": "REAL"
+        },
+        {
+          "ref_num": 4,
+          "title": "Adam: A Method for Stochastic Optimization",
+          "authors": ["Kingma, D.", "Ba, J."],
+          "year": 2015,
+          "venue": "International Conference on Learning Representations (ICLR)",
+          "doi": "10.48550/arXiv.1412.6980",
+          "ground_truth": "REAL"
+        },
+        {
+          "ref_num": 5,
+          "title": "ImageNet Classification with Deep Convolutional Neural Networks",
+          "authors": ["Krizhevsky, A.", "Sutskever, I.", "Hinton, G."],
+          "year": 2012,
+          "venue": "Advances in Neural Information Processing Systems (NeurIPS)",
+          "doi": "10.1145/3065386",
+          "ground_truth": "REAL"
+        },
+        {
+          "ref_num": 6,
+          "title": "Adaptive Graph Attention Networks for Multi-Modal Feature Fusion",
+          "authors": ["Chen, W.", "Liu, M.", "Zhang, K."],
+          "year": 2022,
+          "venue": "International Conference on Learning Representations (ICLR)",
+          "doi": null,
+          "ground_truth": "FAKE"
+        },
+        {
+          "ref_num": 7,
+          "title": "Dynamic Sparse Attention in Deep Recurrent Architectures",
+          "authors": ["Yamamoto, H.", "Tanaka, S.", "Watanabe, K."],
+          "year": 2020,
+          "venue": "Advances in Neural Information Processing Systems (NeurIPS)",
+          "doi": null,
+          "ground_truth": "FAKE"
+        },
+        {
+          "ref_num": 8,
+          "title": "Probabilistic Neural Architecture Search via Bayesian Optimization",
+          "authors": ["Thompson, B.", "Wilson, R.", "Anderson, M."],
+          "year": 2021,
+          "venue": "International Conference on Learning Representations (ICLR)",
+          "doi": null,
+          "ground_truth": "FAKE"
+        },
+        {
+          "ref_num": 9,
+          "title": "Self-Supervised Pretraining for Semantic Segmentation in Autonomous Driving",
+          "authors": ["Fischer, M.", "Weber, K.", "Braun, T."],
+          "year": 2022,
+          "venue": "Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR)",
+          "doi": null,
+          "ground_truth": "FAKE"
+        },
+        {
+          "ref_num": 10,
+          "title": "Progressive Token Merging for Efficient Vision Transformers",
+          "authors": ["Mitchell, S.", "Brown, L.", "Davis, C."],
+          "year": 2022,
+          "venue": "International Conference on Learning Representations (ICLR)",
+          "doi": null,
+          "ground_truth": "FAKE"
+        }
+      ]
+    },
+    {
+      "filename": "test_paper_2.pdf",
+      "topic": "Neural Language Models",
+      "paper_title": "Recent Advances in Pre-trained Neural Language Models",
+      "citations": [
+        {
+          "ref_num": 1,
+          "title": "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
+          "authors": ["Devlin, J.", "Chang, M.", "Lee, K.", "Toutanova, K."],
+          "year": 2019,
+          "venue": "Proceedings of NAACL-HLT",
+          "doi": "10.18653/v1/N19-1423",
+          "ground_truth": "REAL"
+        },
+        {
+          "ref_num": 2,
+          "title": "Language Models are Few-Shot Learners",
+          "authors": ["Brown, T.", "Mann, B.", "Ryder, N.", "Subbiah, M.", "Kaplan, J.", "Dhariwal, P.", "Amodei, D."],
+          "year": 2020,
+          "venue": "Advances in Neural Information Processing Systems (NeurIPS)",
+          "doi": "10.48550/arXiv.2005.14165",
+          "ground_truth": "REAL"
+        },
+        {
+          "ref_num": 3,
+          "title": "Long Short-Term Memory",
+          "authors": ["Hochreiter, S.", "Schmidhuber, J."],
+          "year": 1997,
+          "venue": "Neural Computation",
+          "doi": "10.1162/neco.1997.9.8.1735",
+          "ground_truth": "REAL"
+        },
+        {
+          "ref_num": 4,
+          "title": "Learning Transferable Visual Models From Natural Language Supervision",
+          "authors": ["Radford, A.", "Kim, J.", "Hallacy, C.", "Ramesh, A.", "Goh, G.", "Agarwal, S.", "Sutskever, I."],
+          "year": 2021,
+          "venue": "International Conference on Machine Learning (ICML)",
+          "doi": "10.48550/arXiv.2103.00020",
+          "ground_truth": "REAL"
+        },
+        {
+          "ref_num": 5,
+          "title": "Dropout: A Simple Way to Prevent Neural Networks from Overfitting",
+          "authors": ["Srivastava, N.", "Hinton, G.", "Krizhevsky, A.", "Sutskever, I.", "Salakhutdinov, R."],
+          "year": 2014,
+          "venue": "Journal of Machine Learning Research (JMLR)",
+          "doi": null,
+          "ground_truth": "REAL"
+        },
+        {
+          "ref_num": 6,
+          "title": "Hierarchical Transformer Architectures for Long Document Understanding",
+          "authors": ["Patel, R.", "Singh, A.", "Kumar, D."],
+          "year": 2021,
+          "venue": "Proceedings of the Association for Computational Linguistics (ACL)",
+          "doi": null,
+          "ground_truth": "FAKE"
+        },
+        {
+          "ref_num": 7,
+          "title": "Scalable Mixture-of-Experts for Natural Language Generation",
+          "authors": ["Nguyen, T.", "Tran, V.", "Le, Q."],
+          "year": 2020,
+          "venue": "Empirical Methods in Natural Language Processing (EMNLP)",
+          "doi": null,
+          "ground_truth": "FAKE"
+        },
+        {
+          "ref_num": 8,
+          "title": "Quantum-Inspired Attention Mechanisms for Sequence Modelling",
+          "authors": ["Ali, F.", "Hassan, M.", "Rahman, A."],
+          "year": 2021,
+          "venue": "Proceedings of the Association for Computational Linguistics (ACL)",
+          "doi": null,
+          "ground_truth": "FAKE"
+        },
+        {
+          "ref_num": 9,
+          "title": "Structured Pruning via Gradient Flow Analysis in Transformer Models",
+          "authors": ["Svensson, A.", "Berg, M.", "Lindqvist, J."],
+          "year": 2020,
+          "venue": "Empirical Methods in Natural Language Processing (EMNLP)",
+          "doi": null,
+          "ground_truth": "FAKE"
+        },
+        {
+          "ref_num": 10,
+          "title": "Adaptive Curriculum Learning for Low-Resource Machine Translation",
+          "authors": ["Watanabe, N.", "Fujita, K.", "Ishikawa, H."],
+          "year": 2023,
+          "venue": "Proceedings of the Association for Computational Linguistics (ACL)",
+          "doi": null,
+          "ground_truth": "FAKE"
+        }
+      ]
+    },
+    {
+      "filename": "test_paper_3.pdf",
+      "topic": "Computer Vision and Medical Imaging",
+      "paper_title": "Deep Learning for Medical Image Analysis: A Comprehensive Review",
+      "citations": [
+        {
+          "ref_num": 1,
+          "title": "U-Net: Convolutional Networks for Biomedical Image Segmentation",
+          "authors": ["Ronneberger, O.", "Fischer, P.", "Brox, T."],
+          "year": 2015,
+          "venue": "Medical Image Computing and Computer-Assisted Intervention (MICCAI)",
+          "doi": "10.1007/978-3-319-24574-4_28",
+          "ground_truth": "REAL"
+        },
+        {
+          "ref_num": 2,
+          "title": "Very Deep Convolutional Networks for Large-Scale Image Recognition",
+          "authors": ["Simonyan, K.", "Zisserman, A."],
+          "year": 2015,
+          "venue": "International Conference on Learning Representations (ICLR)",
+          "doi": "10.48550/arXiv.1409.1556",
+          "ground_truth": "REAL"
+        },
+        {
+          "ref_num": 3,
+          "title": "Gradient-Based Learning Applied to Document Recognition",
+          "authors": ["LeCun, Y.", "Bottou, L.", "Bengio, Y.", "Haffner, P."],
+          "year": 1998,
+          "venue": "Proceedings of the IEEE",
+          "doi": "10.1109/5.726791",
+          "ground_truth": "REAL"
+        },
+        {
+          "ref_num": 4,
+          "title": "An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale",
+          "authors": ["Dosovitskiy, A.", "Beyer, L.", "Kolesnikov, A.", "Weissenborn, D.", "Zhai, X.", "Unterthiner, T.", "Houlsby, N."],
+          "year": 2021,
+          "venue": "International Conference on Learning Representations (ICLR)",
+          "doi": "10.48550/arXiv.2010.11929",
+          "ground_truth": "REAL"
+        },
+        {
+          "ref_num": 5,
+          "title": "Reinforcement Learning: An Introduction",
+          "authors": ["Sutton, R.", "Barto, A."],
+          "year": 2018,
+          "venue": "MIT Press",
+          "doi": null,
+          "ground_truth": "REAL"
+        },
+        {
+          "ref_num": 6,
+          "title": "Cross-Modal Contrastive Learning for Medical Image Analysis",
+          "authors": ["Rodriguez, C.", "Martinez, J.", "Fernandez, L."],
+          "year": 2023,
+          "venue": "Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR)",
+          "doi": null,
+          "ground_truth": "FAKE"
+        },
+        {
+          "ref_num": 7,
+          "title": "Efficient Zero-Shot Transfer with Unified Language-Vision Pretraining",
+          "authors": ["Kim, J.", "Park, S.", "Lee, H."],
+          "year": 2022,
+          "venue": "European Conference on Computer Vision (ECCV)",
+          "doi": null,
+          "ground_truth": "FAKE"
+        },
+        {
+          "ref_num": 8,
+          "title": "Causal Representation Learning via Interventional Data Augmentation",
+          "authors": ["Johansson, E.", "Lindstrom, P.", "Eriksson, G."],
+          "year": 2023,
+          "venue": "Advances in Neural Information Processing Systems (NeurIPS)",
+          "doi": null,
+          "ground_truth": "FAKE"
+        },
+        {
+          "ref_num": 9,
+          "title": "Federated Meta-Learning for Cross-Domain Medical Imaging",
+          "authors": ["Okafor, E.", "Adeyemi, B.", "Nwosu, C."],
+          "year": 2021,
+          "venue": "International Conference on Machine Learning (ICML)",
+          "doi": null,
+          "ground_truth": "FAKE"
+        },
+        {
+          "ref_num": 10,
+          "title": "Neural Symbolic Reasoning for Visual Question Answering in Clinical Settings",
+          "authors": ["Guerrero, P.", "Torres, R.", "Mendez, H."],
+          "year": 2022,
+          "venue": "Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR)",
+          "doi": null,
+          "ground_truth": "FAKE"
+        }
+      ]
+    },
+    {
+      "filename": "test_paper_4.pdf",
+      "topic": "Graph Neural Networks",
+      "paper_title": "Graph Neural Networks for Relational Learning: A Survey",
+      "citations": [
+        {
+          "ref_num": 1,
+          "title": "Semi-Supervised Classification with Graph Convolutional Networks",
+          "authors": ["Kipf, T.", "Welling, M."],
+          "year": 2017,
+          "venue": "International Conference on Learning Representations (ICLR)",
+          "doi": "10.48550/arXiv.1609.02907",
+          "ground_truth": "REAL"
+        },
+        {
+          "ref_num": 2,
+          "title": "Graph Attention Networks",
+          "authors": ["Velickovic, P.", "Cucurull, G.", "Casanova, A.", "Romero, A.", "Lio, P.", "Bengio, Y."],
+          "year": 2018,
+          "venue": "International Conference on Learning Representations (ICLR)",
+          "doi": "10.48550/arXiv.1710.10903",
+          "ground_truth": "REAL"
+        },
+        {
+          "ref_num": 3,
+          "title": "Inductive Representation Learning on Large Graphs",
+          "authors": ["Hamilton, W.", "Ying, R.", "Leskovec, J."],
+          "year": 2017,
+          "venue": "Advances in Neural Information Processing Systems (NeurIPS)",
+          "doi": "10.48550/arXiv.1706.02216",
+          "ground_truth": "REAL"
+        },
+        {
+          "ref_num": 4,
+          "title": "How Powerful are Graph Neural Networks?",
+          "authors": ["Xu, K.", "Hu, W.", "Leskovec, J.", "Jegelka, S."],
+          "year": 2019,
+          "venue": "International Conference on Learning Representations (ICLR)",
+          "doi": "10.48550/arXiv.1810.00826",
+          "ground_truth": "REAL"
+        },
+        {
+          "ref_num": 5,
+          "title": "The Graph Neural Network Model",
+          "authors": ["Scarselli, F.", "Gori, M.", "Tsoi, A.", "Hagenbuchner, M.", "Monfardini, G."],
+          "year": 2009,
+          "venue": "IEEE Transactions on Neural Networks",
+          "doi": "10.1109/TNN.2008.2005605",
+          "ground_truth": "REAL"
+        },
+        {
+          "ref_num": 6,
+          "title": "Adaptive Spectral Graph Convolutions for Dynamic Network Embedding",
+          "authors": ["Zhao, L.", "Chen, X.", "Wang, F."],
+          "year": 2022,
+          "venue": "International Conference on Learning Representations (ICLR)",
+          "doi": null,
+          "ground_truth": "FAKE"
+        },
+        {
+          "ref_num": 7,
+          "title": "Hyperbolic Graph Transformers for Knowledge Graph Completion",
+          "authors": ["Lim, J.", "Park, K.", "Choi, S."],
+          "year": 2021,
+          "venue": "Advances in Neural Information Processing Systems (NeurIPS)",
+          "doi": null,
+          "ground_truth": "FAKE"
+        },
+        {
+          "ref_num": 8,
+          "title": "Multi-Scale Hierarchical Graph Pooling via Differentiable Clustering",
+          "authors": ["Novak, R.", "Sohl-Dickstein, J.", "Schoenholz, S."],
+          "year": 2022,
+          "venue": "International Conference on Machine Learning (ICML)",
+          "doi": null,
+          "ground_truth": "FAKE"
+        },
+        {
+          "ref_num": 9,
+          "title": "Contrastive Graph Structure Learning for Molecular Property Prediction",
+          "authors": ["Sun, Y.", "Zheng, H.", "Liu, Q."],
+          "year": 2023,
+          "venue": "Advances in Neural Information Processing Systems (NeurIPS)",
+          "doi": null,
+          "ground_truth": "FAKE"
+        },
+        {
+          "ref_num": 10,
+          "title": "Equivariant Graph Neural Networks via Stochastic Symmetry Breaking",
+          "authors": ["Haas, M.", "Gruber, T.", "Steinke, F."],
+          "year": 2023,
+          "venue": "International Conference on Machine Learning (ICML)",
+          "doi": null,
+          "ground_truth": "FAKE"
+        }
+      ]
+    },
+    {
+      "filename": "test_paper_5.pdf",
+      "topic": "Federated Learning and Privacy",
+      "paper_title": "Privacy-Preserving Machine Learning: Federated Approaches and Challenges",
+      "citations": [
+        {
+          "ref_num": 1,
+          "title": "Communication-Efficient Learning of Deep Networks from Decentralized Data",
+          "authors": ["McMahan, B.", "Moore, E.", "Ramage, D.", "Hampson, S.", "Aguera y Arcas, B."],
+          "year": 2017,
+          "venue": "International Conference on Artificial Intelligence and Statistics (AISTATS)",
+          "doi": "10.48550/arXiv.1602.05629",
+          "ground_truth": "REAL"
+        },
+        {
+          "ref_num": 2,
+          "title": "Explaining and Harnessing Adversarial Examples",
+          "authors": ["Goodfellow, I.", "Shlens, J.", "Szegedy, C."],
+          "year": 2015,
+          "venue": "International Conference on Learning Representations (ICLR)",
+          "doi": "10.48550/arXiv.1412.6572",
+          "ground_truth": "REAL"
+        },
+        {
+          "ref_num": 3,
+          "title": "Towards Deep Learning Models Resistant to Adversarial Attacks",
+          "authors": ["Madry, A.", "Makelov, A.", "Schmidt, L.", "Tsipras, D.", "Vladu, A."],
+          "year": 2018,
+          "venue": "International Conference on Learning Representations (ICLR)",
+          "doi": "10.48550/arXiv.1706.06083",
+          "ground_truth": "REAL"
+        },
+        {
+          "ref_num": 4,
+          "title": "Deep Learning with Differential Privacy",
+          "authors": ["Abadi, M.", "Chu, A.", "Goodfellow, I.", "McMahan, H.", "Mironov, I.", "Talwar, K.", "Zhang, L."],
+          "year": 2016,
+          "venue": "ACM SIGSAC Conference on Computer and Communications Security (CCS)",
+          "doi": "10.1145/2976749.2978318",
+          "ground_truth": "REAL"
+        },
+        {
+          "ref_num": 5,
+          "title": "Membership Inference Attacks Against Machine Learning Models",
+          "authors": ["Shokri, R.", "Stronati, M.", "Song, C.", "Shmatikov, V."],
+          "year": 2017,
+          "venue": "IEEE Symposium on Security and Privacy",
+          "doi": "10.1109/SP.2017.41",
+          "ground_truth": "REAL"
+        },
+        {
+          "ref_num": 6,
+          "title": "Asynchronous Federated Optimization with Heterogeneous Client Participation",
+          "authors": ["Reyes, D.", "Mora, C.", "Vega, L."],
+          "year": 2022,
+          "venue": "International Conference on Learning Representations (ICLR)",
+          "doi": null,
+          "ground_truth": "FAKE"
+        },
+        {
+          "ref_num": 7,
+          "title": "Differentially Private Gradient Boosting for Tabular Healthcare Data",
+          "authors": ["Kowalski, P.", "Nowak, B.", "Wiśniewski, M."],
+          "year": 2021,
+          "venue": "Advances in Neural Information Processing Systems (NeurIPS)",
+          "doi": null,
+          "ground_truth": "FAKE"
+        },
+        {
+          "ref_num": 8,
+          "title": "Secure Aggregation with Verifiable Dropout Tolerance in Federated Settings",
+          "authors": ["Ivanova, E.", "Petrov, A.", "Sokolov, D."],
+          "year": 2022,
+          "venue": "USENIX Security Symposium",
+          "doi": null,
+          "ground_truth": "FAKE"
+        },
+        {
+          "ref_num": 9,
+          "title": "Byzantine-Robust Federated Learning via Adaptive Gradient Clipping",
+          "authors": ["Dubois, F.", "Laurent, P.", "Mercier, G."],
+          "year": 2023,
+          "venue": "International Conference on Machine Learning (ICML)",
+          "doi": null,
+          "ground_truth": "FAKE"
+        },
+        {
+          "ref_num": 10,
+          "title": "Unlearning in Federated Networks via Selective Parameter Resetting",
+          "authors": ["Tanaka, R.", "Kimura, S.", "Nakamura, T."],
+          "year": 2023,
+          "venue": "International Conference on Learning Representations (ICLR)",
+          "doi": null,
+          "ground_truth": "FAKE"
+        }
+      ]
+    }
+  ]
+}

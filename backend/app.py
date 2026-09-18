@@ -15,6 +15,7 @@ from services.user_db import (
 	save_chat, get_chat,
 )
 from services.cache import (
+	init_db as _init_cache_db,
 	get_pdf_hash,
 	get_cached_ai, save_cached_ai,
 	get_cached_missing, save_cached_missing,
@@ -36,6 +37,34 @@ load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
+
+# Per-hash locks to prevent concurrent GROBID calls for the same PDF
+_grobid_parse_locks: dict[str, threading.Lock] = {}
+_grobid_parse_locks_mu = threading.Lock()
+
+def _get_or_parse_grobid(pdf_hash: str, tmp_path: str, filename: str) -> dict:
+    """Return GROBID parsed result for pdf_hash, calling GROBID at most once per hash."""
+    # Fast path: already cached
+    parsed = get_grobid_cached(pdf_hash)
+    if parsed is not None:
+        return parsed
+
+    # Acquire a per-hash lock so only one thread calls GROBID at a time
+    with _grobid_parse_locks_mu:
+        if pdf_hash not in _grobid_parse_locks:
+            _grobid_parse_locks[pdf_hash] = threading.Lock()
+        lock = _grobid_parse_locks[pdf_hash]
+
+    with lock:
+        # Re-check after acquiring lock (another thread may have just written it)
+        parsed = get_grobid_cached(pdf_hash)
+        if parsed is not None:
+            return parsed
+
+        from services.grobid import extract_with_grobid
+        parsed = extract_with_grobid(tmp_path)
+        save_grobid_cache(pdf_hash, filename, parsed)
+        return parsed
 
 PDF_STORAGE_DIR = os.path.join(os.path.dirname(__file__), "stored_pdfs")
 os.makedirs(PDF_STORAGE_DIR, exist_ok=True)
@@ -97,30 +126,7 @@ def analyze():
 				return
 
 			# ── GROBID: use cache if available, otherwise parse ───────────────
-			parsed = get_grobid_cached(pdf_hash)
-			if parsed is None:
-				from services.grobid import extract_with_grobid
-				parsed = extract_with_grobid(tmp_path)
-				save_grobid_cache(pdf_hash, filename, parsed)
-
-				# DEBUG: print in_text_map claim sentences
-				print("\n" + "="*60)
-
-				print("[DEBUG] CLAIM SENTENCES FROM in_text_map")
-				print("="*60)
-				in_text_map = parsed.get("in_text_map", {})
-				references  = parsed.get("citations", [])
-				ref_titles = {r.get("id"): r.get("title", "Unknown") for r in references}
-				if not in_text_map:
-					print("[DEBUG] in_text_map is EMPTY")
-				else:
-					for ref_id, contexts in list(in_text_map.items())[:10]:
-						title = ref_titles.get(ref_id, "Unknown")
-						print(f"  Ref [{ref_id}] {title[:60]}")
-						for i, ctx in enumerate(contexts[:2]):
-							print(f"    Claim {i+1}: {repr(ctx[:120])}")
-				print(f"[DEBUG] Total refs with contexts: {sum(1 for v in in_text_map.values() if v)}/{len(in_text_map)}")
-				print("="*60 + "\n")
+			parsed = _get_or_parse_grobid(pdf_hash, tmp_path, filename)
 
 
 			if _analyze_user_id:
@@ -323,11 +329,7 @@ def reliability():
 		if cached:
 			return jsonify({"success": True, "data": cached})
 
-		parsed = get_grobid_cached(pdf_hash)
-		if parsed is None:
-			from services.grobid import extract_with_grobid
-			parsed = extract_with_grobid(tmp_path)
-			save_grobid_cache(pdf_hash, file.filename, parsed)
+		parsed = _get_or_parse_grobid(pdf_hash, tmp_path, file.filename)
 
 		from services.reliability import score_all_references
 		scored = score_all_references(parsed)
@@ -374,11 +376,7 @@ def network():
 	try:
 		pdf_hash = get_pdf_hash(tmp_path)
 
-		parsed = get_grobid_cached(pdf_hash)
-		if parsed is None:
-			from services.grobid import extract_with_grobid
-			parsed = extract_with_grobid(tmp_path)
-			save_grobid_cache(pdf_hash, file.filename, parsed)
+		parsed = _get_or_parse_grobid(pdf_hash, tmp_path, file.filename)
 
 		cached = get_cached_network(pdf_hash)
 		if cached:
@@ -417,11 +415,7 @@ def bias():
 		if cached:
 			return jsonify({"success": True, "data": cached})
 
-		parsed = get_grobid_cached(pdf_hash)
-		if parsed is None:
-			from services.grobid import extract_with_grobid
-			parsed = extract_with_grobid(tmp_path)
-			save_grobid_cache(pdf_hash, file.filename, parsed)
+		parsed = _get_or_parse_grobid(pdf_hash, tmp_path, file.filename)
 
 		from services.citation_bias import build_citation_bias
 		result = build_citation_bias(parsed)
@@ -456,11 +450,7 @@ def format_check():
 		if cached:
 			return jsonify({"success": True, "data": cached})
 
-		parsed = get_grobid_cached(pdf_hash)
-		if parsed is None:
-			from services.grobid import extract_with_grobid
-			parsed = extract_with_grobid(tmp_path)
-			save_grobid_cache(pdf_hash, file.filename, parsed)
+		parsed = _get_or_parse_grobid(pdf_hash, tmp_path, file.filename)
 
 		from services.format_checker import check_format_consistency
 		result = check_format_consistency(parsed)
@@ -494,11 +484,7 @@ def integrity():
 		if cached:
 			return jsonify({"success": True, "data": cached})
 
-		parsed = get_grobid_cached(pdf_hash)
-		if parsed is None:
-			from services.grobid import extract_with_grobid
-			parsed = extract_with_grobid(tmp_path)
-			save_grobid_cache(pdf_hash, file.filename, parsed)
+		parsed = _get_or_parse_grobid(pdf_hash, tmp_path, file.filename)
 
 		from services.integrity import run_integrity_audit
 		result = run_integrity_audit(parsed)
@@ -532,11 +518,7 @@ def alignment():
 		if cached:
 			return jsonify({"success": True, "data": cached})
 
-		parsed = get_grobid_cached(pdf_hash)
-		if parsed is None:
-			from services.grobid import extract_with_grobid
-			parsed = extract_with_grobid(tmp_path)
-			save_grobid_cache(pdf_hash, file.filename, parsed)
+		parsed = _get_or_parse_grobid(pdf_hash, tmp_path, file.filename)
 
 		from services.alignment import run_alignment
 		result = run_alignment(parsed)
@@ -570,11 +552,7 @@ def reproducibility():
 		if cached:
 			return jsonify({"success": True, "data": cached})
 
-		parsed = get_grobid_cached(pdf_hash)
-		if parsed is None:
-			from services.grobid import extract_with_grobid
-			parsed = extract_with_grobid(tmp_path)
-			save_grobid_cache(pdf_hash, file.filename, parsed)
+		parsed = _get_or_parse_grobid(pdf_hash, tmp_path, file.filename)
 
 		from services.reproducibility import run_reproducibility
 		result = run_reproducibility(parsed)
@@ -606,11 +584,7 @@ def limitations():
 		if cached:
 			return jsonify({"success": True, "data": cached})
 
-		parsed = get_grobid_cached(pdf_hash)
-		if parsed is None:
-			from services.grobid import extract_with_grobid
-			parsed = extract_with_grobid(tmp_path)
-			save_grobid_cache(pdf_hash, file.filename, parsed)
+		parsed = _get_or_parse_grobid(pdf_hash, tmp_path, file.filename)
 
 		from services.limitations import analyze_limitations
 		result = analyze_limitations(parsed)
@@ -642,11 +616,7 @@ def stats_check():
 		if cached:
 			return jsonify({"success": True, "data": cached})
 
-		parsed = get_grobid_cached(pdf_hash)
-		if parsed is None:
-			from services.grobid import extract_with_grobid
-			parsed = extract_with_grobid(tmp_path)
-			save_grobid_cache(pdf_hash, file.filename, parsed)
+		parsed = _get_or_parse_grobid(pdf_hash, tmp_path, file.filename)
 
 		from services.stats_validator import validate_statistics
 		result = validate_statistics(parsed)
@@ -678,11 +648,7 @@ def review_template():
 		if cached:
 			return jsonify({"success": True, "data": cached})
 
-		parsed = get_grobid_cached(pdf_hash)
-		if parsed is None:
-			from services.grobid import extract_with_grobid
-			parsed = extract_with_grobid(tmp_path)
-			save_grobid_cache(pdf_hash, file.filename, parsed)
+		parsed = _get_or_parse_grobid(pdf_hash, tmp_path, file.filename)
 
 		# Enrich with whatever cached analyses are available
 		enrichment = {}
@@ -711,6 +677,7 @@ def review_template():
 # Auth, Chat, History, Draft endpoints
 # ══════════════════════════════════════════════════════════════════════════════
 
+_init_cache_db()
 _init_user_db()
 
 

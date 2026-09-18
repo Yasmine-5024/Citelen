@@ -32,6 +32,7 @@ Create `backend/.env` with:
 ```
 OPENAI_API_KEY=...
 SEMANTIC_SCHOLAR_API_KEY=...   # optional, increases rate limits
+CORE_API_KEY=...               # optional, increases CORE API rate limits (get free key at core.ac.uk)
 ```
 
 ---

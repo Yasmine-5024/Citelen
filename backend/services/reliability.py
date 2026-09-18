@@ -32,6 +32,33 @@ from openai import OpenAI
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+# ── Lazy-loaded sentence embedder ─────────────────────────────────────────────
+
+_embedder = None
+
+def _get_embedder():
+    global _embedder
+    if _embedder is None:
+        from sentence_transformers import SentenceTransformer
+        _embedder = SentenceTransformer("all-MiniLM-L6-v2")
+    return _embedder
+
+
+def _semantic_similarity(text_a: str, text_b: str) -> int:
+    """
+    Cosine similarity between two texts using sentence-transformers.
+    Returns 0-100, or -1 if unavailable.
+    """
+    try:
+        import numpy as np
+        model = _get_embedder()
+        embs = model.encode([text_a[:512], text_b[:512]], normalize_embeddings=True)
+        cos = float(np.dot(embs[0], embs[1]))
+        return round(max(0.0, cos) * 100)
+    except Exception as e:
+        print(f"[reliability] semantic similarity error: {e}")
+        return -1
+
 SS_SEARCH_URL = "https://api.semanticscholar.org/graph/v1/paper/search"
 SS_API_KEY = os.getenv("SEMANTIC_SCHOLAR_API_KEY", "")
 
@@ -366,6 +393,53 @@ def _fetch_from_arxiv(title: str) -> str | None:
     return None
 
 
+def _fetch_oa_citation_count(title: str, doi: str | None) -> int | None:
+    """
+    Fetch cited_by_count from OpenAlex as a fallback when Semantic Scholar
+    doesn't return a result. Free, no API key needed.
+    """
+    headers = {"User-Agent": "reflens/1.0 (mailto:research@reflens.app)"}
+    try:
+        # 1. DOI lookup (exact)
+        if doi:
+            r = requests.get(
+                f"{OPENALEX_SEARCH_URL}/https://doi.org/{doi.strip()}",
+                params={"select": "cited_by_count,title"},
+                headers=headers,
+                timeout=(4, 8),
+            )
+            if r.status_code == 200:
+                count = r.json().get("cited_by_count")
+                if count is not None:
+                    print(f"[OA] cited_by_count={count} via DOI for '{title[:40]}'")
+                    return int(count)
+
+        # 2. Title search
+        if title:
+            r = requests.get(
+                OPENALEX_SEARCH_URL,
+                params={"search": title[:120], "select": "cited_by_count,title", "per-page": 1},
+                headers=headers,
+                timeout=(4, 8),
+            )
+            if r.status_code == 200:
+                results = r.json().get("results", [])
+                if results:
+                    hit = results[0]
+                    hit_title = (hit.get("title") or "").lower().strip()
+                    q_words = set(title.lower().split())
+                    h_words = set(hit_title.split())
+                    overlap = len(q_words & h_words) / max(len(q_words), 1)
+                    if overlap >= 0.5:
+                        count = hit.get("cited_by_count")
+                        if count is not None:
+                            print(f"[OA] cited_by_count={count} via search for '{title[:40]}'")
+                            return int(count)
+    except Exception as e:
+        print(f"[reliability] OA citation count error: {e}")
+    return None
+
+
 def _fetch_abstract(title: str, doi: str | None, ss_paper: dict | None) -> str | None:
     """
     Fetch abstract using a multi-source chain:
@@ -440,18 +514,18 @@ def _score_venue(venue: str, ss_paper: dict | None) -> int:
     return max(0, min(100, score))
 
 
-def _freshness_score(ref_year: int | None, paper_year: int | None) -> int:
+def _freshness_score(ref_year: int | None, paper_year: int | None, citation_count: int = 0) -> int:
     """
     Score 0-100 for how fresh the citation is.
-    Papers ≤5 years old score highest; very old papers (>30 yrs) score lowest
-    unless they are likely foundational (reflected in high citation count — handled
-    by caller merging the scores).
+    Papers ≤5 years old score highest; very old papers get penalised UNLESS they
+    are foundational (≥500 citations), in which case the age penalty is waived.
     """
     if not ref_year:
         return 40  # unknown — mild penalty
 
     anchor = paper_year or 2024
     age = anchor - ref_year
+    foundational = citation_count >= 500
 
     if age <= 2:
         return 100
@@ -460,11 +534,11 @@ def _freshness_score(ref_year: int | None, paper_year: int | None) -> int:
     elif age <= 10:
         return 70
     elif age <= 20:
-        return 50
+        return 60 if foundational else 50
     elif age <= 30:
-        return 35
+        return 60 if foundational else 35
     else:
-        return 20
+        return 60 if foundational else 20
 
 
 def _is_predatory(venue: str) -> bool:
@@ -509,20 +583,27 @@ Your ONLY job:
 - Does the cited paper justify or support the specific CLAIM sentence?
 - Use the SOURCE PAPER CONTEXT to understand the domain and methods used — a citation that is standard practice in that domain should be scored favourably even if the source paper's abstract doesn't mention it explicitly.
 
+You will also receive a SEMANTIC SIMILARITY score (0-100) computed independently by a sentence-embedding model. It measures conceptual overlap between the claim and the abstract regardless of word choice — two texts can be semantically close even if they share no keywords.
+
 CRITICAL RULES (apply in priority order):
 1. If the CLAIM uses a named scale, questionnaire, or tool (e.g. SUS, NASA-TLX, TAM, UTAUT, Likert, thematic analysis, grounded theory) AND the cited paper introduces, defines, or is the canonical reference for that tool/method → score 85-100, verdict "strong", category "Methodological"
 2. If the CLAIM says "we used / we applied / we followed / we conducted [method]" and the cited paper is a well-known reference for that method → score 80-100
 3. If the SOURCE PAPER is in a domain (HCI, UX, medicine, psychology, etc.) where this kind of citation is standard practice → lean towards "Methodological" or "Background" rather than "unsupported"
 4. If the CLAIM is a background/related-work statement and the cited paper is on that topic → score 70-85
 5. If the CLAIM makes a factual assertion and the cited paper provides evidence → score 80-100
-6. If the cited paper is completely unrelated to the specific claim sentence → score 0-39
-7. DO NOT penalise a citation just because its topic differs from the source paper's main contribution
+6. SEMANTIC SIMILARITY guidance — the embedding model has already detected conceptual overlap independently:
+   - similarity ≥ 60: strong conceptual link exists even if wording differs — do NOT score below 55; lean towards "moderate" or higher
+   - similarity 40-59: meaningful conceptual overlap — give benefit of the doubt, especially for background/introductory citations
+   - similarity < 40: low conceptual overlap — rely on your own reading of the abstract
+7. If the cited paper is completely unrelated to the specific claim sentence AND similarity < 30 → score 0-39
+8. DO NOT penalise a citation just because its topic differs from the source paper's main contribution
 
-Reply ONLY with valid JSON (no markdown):
+Reply ONLY with valid JSON (no markdown). Think step by step INSIDE the "reasoning" field before assigning a score:
 {
+  "reasoning": "<2-3 sentences: explain how the cited paper's topic connects to the specific claim, considering both literal and conceptual links>",
   "score": <int 0-100>,
   "verdict": <"strong"|"moderate"|"weak"|"unsupported">,
-  "note": "<one sentence explanation focused on the claim sentence>",
+  "note": "<one sentence summary for the user>",
   "category": <"Directly Relevant"|"Methodological"|"Background"|"Baseline"|"Inspiration"|"Gap Identification"|"Example">
 }
 
@@ -544,13 +625,14 @@ category definitions:
 def _score_claim_integrity(
     contexts: list[str],
     cited_abstract: str | None,
+    cited_title: str = "",
     source_title: str = "",
     source_abstract: str = "",
 ) -> dict:
     """
-    Use GPT-4o-mini to score how well `cited_abstract` supports the in-text use(s),
-    given the context of what the source paper is about.
-    Returns {"score": int, "verdict": str, "note": str}.
+    Use GPT-4o to score how well `cited_abstract` supports the in-text use(s).
+    Augments GPT with a semantic similarity score from sentence-transformers.
+    Returns {"score": int, "verdict": str, "note": str, "reasoning": str}.
     """
     print(f"[integrity] contexts={len(contexts)}  abstract={'YES' if cited_abstract else 'NO'}")
     for i, ctx in enumerate(contexts[:3]):
@@ -560,7 +642,7 @@ def _score_claim_integrity(
     if not contexts:
         return {"score": None, "verdict": "no_data", "note": "No abstract found — claim support cannot be assessed.", "category": "Unknown"}
 
-    # Use ALL contexts, capped at 2000 chars total so GPT sees full picture
+    # Use ALL contexts, capped at 2000 chars total
     MAX_CONTEXT_CHARS = 2000
     ctx_parts: list[str] = []
     used = 0
@@ -575,27 +657,35 @@ def _score_claim_integrity(
         used += len(snippet)
     context_str = " | ".join(ctx_parts)
 
+    # Semantic similarity between claim context and cited abstract
+    sim_score = _semantic_similarity(context_str, cited_abstract[:800])
+    sim_line = f"Semantic similarity (embedding model): {sim_score}/100" if sim_score >= 0 else "Semantic similarity: unavailable"
+
     prompt = (
-        f'CLAIM (sentence(s) where this citation appears — PRIMARY FOCUS):\n"{context_str}"\n\n'
-        f'CITED PAPER ABSTRACT:\n"{cited_abstract[:800]}"\n\n'
-        f'SOURCE PAPER CONTEXT (use to understand research domain and methods — helps judge if this is standard practice):\n'
+        f'CLAIM (paragraph(s) where this citation appears — PRIMARY FOCUS):\n"{context_str}"\n\n'
+        f'CITED PAPER:\n'
+        f'Title: "{cited_title[:200]}"\n'
+        f'Abstract: "{cited_abstract[:1000]}"\n\n'
+        f'{sim_line}\n\n'
+        f'SOURCE PAPER CONTEXT (use to understand research domain and methods):\n'
         f'Title: "{source_title[:150]}"\n'
         f'Abstract: "{source_abstract[:600]}"'
     )
     try:
         resp = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="gpt-4o",
             messages=[
                 {"role": "system", "content": _INTEGRITY_SYSTEM},
                 {"role": "user", "content": prompt},
             ],
             temperature=0,
             response_format={"type": "json_object"},
-            timeout=20,
+            timeout=30,
         )
         result = json.loads(resp.choices[0].message.content or "{}")
         result.setdefault("category", "Unknown")
-        print(f"  [integrity result] score={result.get('score')}  verdict={result.get('verdict')}  category={result.get('category')}  note={result.get('note','')[:80]!r}")
+        result.setdefault("reasoning", "")
+        print(f"  [integrity result] score={result.get('score')}  verdict={result.get('verdict')}  sim={sim_score}  category={result.get('category')}  note={result.get('note','')[:80]!r}")
         return result
     except Exception as e:
         print(f"[reliability] GPT integrity error: {e}")
@@ -670,9 +760,13 @@ def score_reference(
     abstract = _fetch_abstract(title, doi, ss_paper)
     doi_ok = _doi_resolves(doi)
 
+    # Citation count: prefer SS, fall back to OpenAlex
+    ss_cite_count = (ss_paper or {}).get("citationCount")
+    citation_count: int = ss_cite_count if ss_cite_count is not None else (_fetch_oa_citation_count(title, doi) or 0)
+
     # ── Sub-scores ───────────────────────────────────────────────────────────
     venue_score = _score_venue(venue, ss_paper)
-    freshness = _freshness_score(ref_year, paper_year)
+    freshness = _freshness_score(ref_year, paper_year, citation_count)
     self_score = _self_cite_score(ref_authors, paper_authors)
     doi_score = 100 if doi_ok else (40 if not doi else 10)
 
@@ -680,6 +774,7 @@ def score_reference(
     integrity = _score_claim_integrity(
         contexts,
         abstract,
+        cited_title=title,
         source_title=source_title,
         source_abstract=source_abstract,
     )
@@ -719,7 +814,7 @@ def score_reference(
         "self_cite_score": self_score,
         "claim_integrity": integrity,
         # meta
-        "citation_count": (ss_paper or {}).get("citationCount"),
+        "citation_count": citation_count if citation_count else None,
         "warnings": warnings,
         "abstract_found": abstract is not None,
         "contexts": contexts,
@@ -776,11 +871,42 @@ def score_all_references(parsed: dict) -> dict:
     for cit in citations:
         key = f"b{cit['num']}"
         contexts = in_text_map.get(key, [])
-        scored = score_reference(
-            cit, contexts, paper_authors, paper_year,
-            source_title=source_title,
-            source_abstract=source_abstract,
-        )
+        try:
+            scored = score_reference(
+                cit, contexts, paper_authors, paper_year,
+                source_title=source_title,
+                source_abstract=source_abstract,
+            )
+        except Exception as e:
+            print(f"[reliability] citation {key} failed: {e}")
+            scored = {
+                "id": cit.get("id", key),
+                "num": cit.get("num"),
+                "title": cit.get("title", ""),
+                "authors": cit.get("authors", []),
+                "year": cit.get("year"),
+                "venue": cit.get("venue", ""),
+                "doi": cit.get("doi"),
+                "overall_score": 50,
+                "reliability": 50,
+                "relevance": None,
+                "venue_score": 50,
+                "freshness_score": 50,
+                "doi_score": 50,
+                "self_cite_score": 100,
+                "claim_integrity": {
+                    "score": None,
+                    "verdict": "no_data",
+                    "note": "Scoring failed due to a network error.",
+                    "reasoning": "",
+                    "category": "Unknown",
+                },
+                "citation_count": None,
+                "warnings": [],
+                "abstract_found": False,
+                "contexts": contexts,
+                "category": "Unknown",
+            }
         results.append(scored)
 
     # Summary stats

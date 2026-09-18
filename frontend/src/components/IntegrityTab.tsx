@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTheme } from "../theme";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -38,39 +39,40 @@ export interface IntegrityData {
   summary: IntegritySummary;
 }
 
-// ─── Colours ──────────────────────────────────────────────────────────────────
+// ─── Semantic colours (don't change between themes) ───────────────────────────
 
-const C = {
-  bg: "#0a0e1a", surface: "#0f1624", card: "#111827", cardBorder: "#1e293b",
-  accent: "#6366f1", text: "#f1f5f9", textMuted: "#94a3b8", textDim: "#64748b",
-  border: "#1e293b", green: "#10b981", yellow: "#f59e0b", orange: "#f97316",
-  red: "#ef4444", blue: "#3b82f6", purple: "#a855f7", teal: "#14b8a6",
-  indigo: "#6366f1",
-};
+const _green  = "#10b981";
+const _yellow = "#f59e0b";
+const _orange = "#f97316";
+const _red    = "#ef4444";
+const _blue   = "#3b82f6";
+const _purple = "#a855f7";
+const _teal   = "#14b8a6";
+const _indigo = "#6366f1";
 
 const SEV_COLOR: Record<string, string> = {
-  high: C.red, medium: C.orange, low: C.yellow,
+  high: _red, medium: _orange, low: _yellow,
 };
 
 const VERDICT_COLOR: Record<string, string> = {
-  strawman:      C.red,
-  misrepresented: C.orange,
-  understated:   C.yellow,
+  strawman:       _red,
+  misrepresented: _orange,
+  understated:    _yellow,
 };
 
 const VERDICT_LABEL: Record<string, string> = {
-  strawman:      "Strawman",
+  strawman:       "Strawman",
   misrepresented: "Misrepresented",
-  understated:   "Understated",
+  understated:    "Understated",
 };
 
 const CLAIM_COLOR: Record<string, string> = {
-  generalizability: C.purple,
-  novelty:          C.indigo,
-  performance:      C.blue,
-  scope:            C.teal,
-  universality:     C.red,
-  significance:     C.orange,
+  generalizability: _purple,
+  novelty:          _indigo,
+  performance:      _blue,
+  scope:            _teal,
+  universality:     _red,
+  significance:     _orange,
 };
 
 const CLAIM_LABEL: Record<string, string> = {
@@ -84,9 +86,7 @@ const CLAIM_LABEL: Record<string, string> = {
 
 // ─── Small shared components ──────────────────────────────────────────────────
 
-function Pill({
-  label, color, bg,
-}: { label: string; color: string; bg?: string }) {
+function Pill({ label, color, bg }: { label: string; color: string; bg?: string }) {
   return (
     <span style={{
       display: "inline-flex", alignItems: "center",
@@ -104,22 +104,23 @@ function SevDot({ severity }: { severity: string }) {
   return (
     <span style={{
       display: "inline-block", width: 8, height: 8, borderRadius: "50%",
-      background: SEV_COLOR[severity] ?? C.textDim, flexShrink: 0,
+      background: SEV_COLOR[severity] ?? "#64748b", flexShrink: 0,
     }} />
   );
 }
 
 function SectionHeader({ icon, title, count }: { icon: string; title: string; count: number }) {
+  const { C } = useTheme();
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
       <span style={{ fontSize: 16 }}>{icon}</span>
       <span style={{ color: C.text, fontWeight: 700, fontSize: 14 }}>{title}</span>
       <span style={{
         marginLeft: "auto", fontSize: 11, fontWeight: 600,
-        color: count === 0 ? C.green : C.orange,
-        background: count === 0 ? `${C.green}18` : `${C.orange}18`,
+        color: count === 0 ? _green : _orange,
+        background: count === 0 ? `${_green}18` : `${_orange}18`,
         padding: "2px 8px", borderRadius: 20,
-        border: `1px solid ${count === 0 ? C.green : C.orange}44`,
+        border: `1px solid ${count === 0 ? _green : _orange}44`,
       }}>
         {count === 0 ? "✓ No issues" : `${count} issue${count !== 1 ? "s" : ""}`}
       </span>
@@ -130,20 +131,20 @@ function SectionHeader({ icon, title, count }: { icon: string; title: string; co
 // ─── Related Work Fairness Card ───────────────────────────────────────────────
 
 function FairnessCard({ item }: { item: FairnessResult }) {
+  const { C } = useTheme();
   const [expanded, setExpanded] = useState(false);
-  const color = VERDICT_COLOR[item.verdict] ?? C.yellow;
+  const color = VERDICT_COLOR[item.verdict] ?? _yellow;
 
   return (
     <div
       onClick={() => setExpanded(e => !e)}
       style={{
-        background: C.card, border: `1px solid ${C.cardBorder}`,
+        background: C.card, border: `1px solid ${C.border}`,
         borderLeft: `3px solid ${color}`,
         borderRadius: 10, padding: "12px 14px", cursor: "pointer",
         transition: "border-color 0.15s",
       }}
     >
-      {/* Header row */}
       <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
         <SevDot severity={item.severity} />
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -165,7 +166,6 @@ function FairnessCard({ item }: { item: FairnessResult }) {
         </div>
       </div>
 
-      {/* Issue summary (always visible) */}
       {item.issue && (
         <div style={{
           marginTop: 8, fontSize: 11.5, color: C.textMuted,
@@ -175,10 +175,8 @@ function FairnessCard({ item }: { item: FairnessResult }) {
         </div>
       )}
 
-      {/* Expanded detail */}
       {expanded && (
         <div style={{ marginTop: 12, paddingLeft: 18, borderTop: `1px solid ${C.border}`, paddingTop: 12 }}>
-          {/* How it's described */}
           <div style={{ marginBottom: 10 }}>
             <div style={{ fontSize: 10, fontWeight: 600, color: C.textDim, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4 }}>
               Described in related work as
@@ -195,7 +193,6 @@ function FairnessCard({ item }: { item: FairnessResult }) {
             ))}
           </div>
 
-          {/* Actual abstract */}
           {item.abstract_snippet && (
             <div style={{ marginBottom: 10 }}>
               <div style={{ fontSize: 10, fontWeight: 600, color: C.textDim, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4 }}>
@@ -203,20 +200,19 @@ function FairnessCard({ item }: { item: FairnessResult }) {
               </div>
               <div style={{
                 fontSize: 11.5, color: C.textMuted, lineHeight: 1.55,
-                padding: "6px 10px", background: `${C.green}0d`,
-                borderRadius: 6, border: `1px solid ${C.green}22`,
+                padding: "6px 10px", background: `${_green}0d`,
+                borderRadius: 6, border: `1px solid ${_green}22`,
               }}>
                 {item.abstract_snippet}
               </div>
             </div>
           )}
 
-          {/* Omitted capability */}
           {item.omitted && (
             <div style={{
-              fontSize: 11.5, color: C.orange, lineHeight: 1.5,
-              padding: "6px 10px", background: `${C.orange}0d`,
-              borderRadius: 6, border: `1px solid ${C.orange}22`,
+              fontSize: 11.5, color: _orange, lineHeight: 1.5,
+              padding: "6px 10px", background: `${_orange}0d`,
+              borderRadius: 6, border: `1px solid ${_orange}22`,
             }}>
               <span style={{ fontWeight: 600 }}>Omitted: </span>{item.omitted}
             </div>
@@ -230,26 +226,23 @@ function FairnessCard({ item }: { item: FairnessResult }) {
 // ─── Overclaim Card ────────────────────────────────────────────────────────────
 
 function OverclaimCard({ item }: { item: OverclaimResult }) {
+  const { C } = useTheme();
   const [expanded, setExpanded] = useState(false);
-  const claimColor = CLAIM_COLOR[item.claim_type] ?? C.purple;
+  const claimColor = CLAIM_COLOR[item.claim_type] ?? _purple;
 
   return (
     <div
       onClick={() => setExpanded(e => !e)}
       style={{
-        background: C.card, border: `1px solid ${C.cardBorder}`,
-        borderLeft: `3px solid ${SEV_COLOR[item.severity] ?? C.yellow}`,
+        background: C.card, border: `1px solid ${C.border}`,
+        borderLeft: `3px solid ${SEV_COLOR[item.severity] ?? _yellow}`,
         borderRadius: 10, padding: "12px 14px", cursor: "pointer",
       }}
     >
-      {/* Claim sentence */}
       <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
         <SevDot severity={item.severity} />
         <div style={{ flex: 1 }}>
-          <div style={{
-            fontSize: 12, color: C.text, lineHeight: 1.55,
-            fontStyle: "italic",
-          }}>
+          <div style={{ fontSize: 12, color: C.text, lineHeight: 1.55, fontStyle: "italic" }}>
             "{item.sentence.length > 180 ? item.sentence.slice(0, 180) + "…" : item.sentence}"
           </div>
         </div>
@@ -259,14 +252,12 @@ function OverclaimCard({ item }: { item: OverclaimResult }) {
         </div>
       </div>
 
-      {/* Issue (always visible) */}
       {item.issue && (
         <div style={{ marginTop: 8, fontSize: 11.5, color: C.textMuted, paddingLeft: 18, lineHeight: 1.5 }}>
           {item.issue}
         </div>
       )}
 
-      {/* Expanded: suggestion */}
       {expanded && item.suggestion && (
         <div style={{
           marginTop: 12, paddingLeft: 18,
@@ -276,9 +267,9 @@ function OverclaimCard({ item }: { item: OverclaimResult }) {
             Suggested rephrasing
           </div>
           <div style={{
-            fontSize: 11.5, color: C.green, lineHeight: 1.55,
-            padding: "6px 10px", background: `${C.green}0d`,
-            borderRadius: 6, border: `1px solid ${C.green}22`,
+            fontSize: 11.5, color: _green, lineHeight: 1.55,
+            padding: "6px 10px", background: `${_green}0d`,
+            borderRadius: 6, border: `1px solid ${_green}22`,
           }}>
             {item.suggestion}
           </div>
@@ -291,17 +282,17 @@ function OverclaimCard({ item }: { item: OverclaimResult }) {
 // ─── Summary bar ──────────────────────────────────────────────────────────────
 
 function SummaryBar({ summary }: { summary: IntegritySummary }) {
+  const { C } = useTheme();
   const total = summary.total_issues;
   const score = Math.max(0, 100 - summary.high_severity * 15 - (total - summary.high_severity) * 5);
-  const scoreColor = score >= 80 ? C.green : score >= 60 ? C.yellow : C.red;
+  const scoreColor = score >= 80 ? _green : score >= 60 ? _yellow : _red;
 
   return (
     <div style={{
-      background: C.surface, border: `1px solid ${C.cardBorder}`,
+      background: C.surface, border: `1px solid ${C.border}`,
       borderRadius: 12, padding: "16px 18px", marginBottom: 20,
       display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap",
     }}>
-      {/* Score */}
       <div style={{ textAlign: "center", minWidth: 70 }}>
         <div style={{ fontSize: 28, fontWeight: 800, color: scoreColor, lineHeight: 1 }}>
           {score}
@@ -313,15 +304,14 @@ function SummaryBar({ summary }: { summary: IntegritySummary }) {
 
       <div style={{ width: 1, height: 44, background: C.border }} />
 
-      {/* Stats */}
       {[
-        { label: "Fairness Issues",  val: summary.fairness_issues,  color: C.orange },
-        { label: "Overclaims",       val: summary.overclaim_issues, color: C.red    },
-        { label: "High Severity",    val: summary.high_severity,    color: C.red    },
-        { label: "RW Cits Checked",  val: summary.related_work_checked, color: C.blue },
+        { label: "Fairness Issues",   val: summary.fairness_issues,       color: _orange },
+        { label: "Overclaims",        val: summary.overclaim_issues,      color: _red    },
+        { label: "High Severity",     val: summary.high_severity,         color: _red    },
+        { label: "RW Cits Checked",   val: summary.related_work_checked,  color: _blue   },
       ].map(({ label, val, color }) => (
         <div key={label} style={{ textAlign: "center", flex: "1 1 60px" }}>
-          <div style={{ fontSize: 20, fontWeight: 700, color: val === 0 ? C.green : color }}>
+          <div style={{ fontSize: 20, fontWeight: 700, color: val === 0 ? _green : color }}>
             {val}
           </div>
           <div style={{ fontSize: 9.5, color: C.textDim, marginTop: 2 }}>{label}</div>
@@ -340,6 +330,7 @@ export default function IntegrityTab({
   data: IntegrityData | null;
   loading: boolean;
 }) {
+  const { C } = useTheme();
   const [fairnessFilter, setFairnessFilter] = useState<"all" | "high" | "medium" | "low">("all");
   const [overclaimFilter, setOverclaimFilter] = useState<"all" | "high" | "medium" | "low">("all");
 
@@ -374,7 +365,6 @@ export default function IntegrityTab({
 
   return (
     <div style={{ padding: "16px 14px", display: "flex", flexDirection: "column", gap: 20 }}>
-      {/* Title */}
       <div>
         <div style={{ fontSize: 16, fontWeight: 700, color: C.text, marginBottom: 2 }}>
           🔬 Integrity Audit
@@ -388,9 +378,9 @@ export default function IntegrityTab({
 
       {noIssues && (
         <div style={{
-          padding: "18px 20px", background: `${C.green}10`,
-          border: `1px solid ${C.green}33`, borderRadius: 12,
-          color: C.green, fontSize: 13, fontWeight: 500, textAlign: "center",
+          padding: "18px 20px", background: `${_green}10`,
+          border: `1px solid ${_green}33`, borderRadius: 12,
+          color: _green, fontSize: 13, fontWeight: 500, textAlign: "center",
         }}>
           ✓ No integrity issues detected
         </div>
@@ -402,9 +392,9 @@ export default function IntegrityTab({
 
         {data.fairness.length === 0 ? (
           <div style={{
-            padding: "14px 16px", background: `${C.green}0d`,
-            border: `1px solid ${C.green}22`, borderRadius: 10,
-            color: C.green, fontSize: 12,
+            padding: "14px 16px", background: `${_green}0d`,
+            border: `1px solid ${_green}22`, borderRadius: 10,
+            color: _green, fontSize: 12,
           }}>
             ✓ Prior work appears to be characterised fairly.
             {data.summary.related_work_checked > 0 &&
@@ -412,7 +402,6 @@ export default function IntegrityTab({
           </div>
         ) : (
           <>
-            {/* Severity filter */}
             <div style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
               {(["all", "high", "medium", "low"] as const).map(f => {
                 const count = f === "all"
@@ -436,7 +425,6 @@ export default function IntegrityTab({
                 );
               })}
             </div>
-
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {filteredFairness.map(item => (
                 <FairnessCard key={item.citation_id} item={item} />
@@ -452,15 +440,14 @@ export default function IntegrityTab({
 
         {data.overclaims.length === 0 ? (
           <div style={{
-            padding: "14px 16px", background: `${C.green}0d`,
-            border: `1px solid ${C.green}22`, borderRadius: 10,
-            color: C.green, fontSize: 12,
+            padding: "14px 16px", background: `${_green}0d`,
+            border: `1px solid ${_green}22`, borderRadius: 10,
+            color: _green, fontSize: 12,
           }}>
             ✓ No overclaims detected in abstract, introduction, or conclusion.
           </div>
         ) : (
           <>
-            {/* Severity filter */}
             <div style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
               {(["all", "high", "medium", "low"] as const).map(f => {
                 const count = f === "all"
@@ -485,7 +472,6 @@ export default function IntegrityTab({
               })}
             </div>
 
-            {/* Claim type legend */}
             <div style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
               {Object.entries(CLAIM_LABEL).map(([key, label]) => (
                 <div key={key} style={{ display: "flex", alignItems: "center", gap: 4 }}>

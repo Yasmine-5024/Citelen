@@ -3,7 +3,7 @@ import { useTheme } from "./theme";
 import PDFViewer from "./components/PDFViewer";
 import Sidebar from "./components/Sidebar";
 import UploadScreen from "./components/UploadScreen";
-import ReviewWorkspace, { ReviewWorkspaceTrigger } from "./components/ReviewWorkspace";
+import ReviewWorkspace from "./components/ReviewWorkspace";
 import AuthPage from "./pages/AuthPage";
 import HistoryPage from "./pages/HistoryPage";
 import HeaderBar from "./components/HeaderBar";
@@ -212,6 +212,7 @@ export default function App() {
   const [workspaceWidth, setWorkspaceWidth] = useState(760);
   const [isResizing, setIsResizing] = useState(false);
   const [activeOverlay, setActiveOverlay] = useState<string | null>(null);
+  const [rightCollapsed, setRightCollapsed] = useState(false);
   const dragStartX = useRef(0);
   const dragStartWidth = useRef(0);
 
@@ -324,9 +325,12 @@ export default function App() {
           flags: [
             ...(r.self_cite_score < 60 ? ["SELF_CITE"] : []),
             ...((r.warnings ?? []).some((w: string) => w.toLowerCase().includes("predatory")) ? ["PREDATORY"] : []),
+            ...((r.warnings ?? []).some((w: string) => w.toLowerCase().includes("doi does not resolve")) ? ["DEAD_DOI"] : []),
+            ...((r.warnings ?? []).some((w: string) => w.toLowerCase().includes("over 30 years")) ? ["OLD"] : []),
             ...(noAbstract ? ["NO_ABSTRACT"] : []),
           ],
           claim: r.claim_integrity?.note ?? "",
+          reasoning: r.claim_integrity?.reasoning ?? "",
           warning: (r.warnings ?? []).length > 0 ? r.warnings[0] : null,
           abstractFound: r.abstract_found ?? false,
           citationCount: r.citation_count ?? null,
@@ -610,8 +614,8 @@ export default function App() {
           ).length ?? 0
         }
         reliabilityScore={
-          reliabilityData?.summary?.avg_reliability != null
-            ? Math.round(reliabilityData.summary.avg_reliability)
+          reliabilityData?.summary?.avg_relevance != null
+            ? Math.round(reliabilityData.summary.avg_relevance)
             : null
         }
         actionsCount={
@@ -634,6 +638,66 @@ export default function App() {
             integrityLoading={integrityLoading}
             phase={stream.phase}
           />
+        )}
+
+        {/* Left overlay panel — inline, shifts PDF */}
+        {activeOverlay && (
+          <div style={{
+            width: 420, flexShrink: 0,
+            height: "100%", display: "flex", flexDirection: "column",
+            background: C.bg, borderRight: `1px solid ${C.border}`,
+            overflow: "hidden",
+            animation: "slideInLeft 0.22s ease",
+          }}>
+            {/* Close bar */}
+            <div style={{
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              padding: "8px 14px", borderBottom: `1px solid ${C.border}`,
+              background: C.surface, flexShrink: 0,
+            }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: C.textMuted, textTransform: "capitalize" }}>
+                {activeOverlay}
+              </span>
+              <button
+                onClick={() => setActiveOverlay(null)}
+                style={{
+                  background: "none", border: `1px solid ${C.border}`, cursor: "pointer",
+                  color: C.textDim, fontSize: 14, width: 26, height: 26,
+                  borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center",
+                  transition: "all 0.15s",
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = C.text; (e.currentTarget as HTMLButtonElement).style.borderColor = C.accent + "60"; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = C.textDim; (e.currentTarget as HTMLButtonElement).style.borderColor = C.border; }}
+              >✕</button>
+            </div>
+            {/* Panel content */}
+            <div style={{ flex: 1, overflowY: "auto" }}>
+              {activeOverlay === "network" && <CitationNetworkTab data={networkData} loading={networkLoading} />}
+              {activeOverlay === "bias" && <CitationBiasTab data={biasData} loading={biasLoading} />}
+              {activeOverlay === "quality" && <QualityTab data={formatData} loading={formatLoading} />}
+              {activeOverlay === "integrity" && <IntegrityTab data={integrityData} loading={integrityLoading} />}
+              {activeOverlay === "chat" && <ChatPanel pdfHash={pdfHash} paperTitle={stream.metadata?.title ?? ""} user={user} />}
+              {activeOverlay === "draft" && <DraftPanel pdfHash={pdfHash} paperTitle={stream.metadata?.title ?? ""} user={user} />}
+              {activeOverlay === "actions" && (
+                <div style={{ padding: 32, textAlign: "center", color: C.textDim, fontSize: 14 }}>
+                  Actions coming soon
+                </div>
+              )}
+              {activeOverlay === "workspace" && (
+                <ReviewWorkspace
+                  onClose={() => setActiveOverlay(null)}
+                  limitationsData={limitationsData}
+                  limitationsLoading={limitationsLoading}
+                  statsData={statsData}
+                  statsLoading={statsLoading}
+                  reviewData={reviewData}
+                  reviewLoading={reviewLoading}
+                  onGenerateReview={() => { if (currentFile) fetchReview(currentFile); }}
+                  paperTitle={stream.metadata?.title}
+                />
+              )}
+            </div>
+          </div>
         )}
 
         {/* PDF Viewer */}
@@ -691,74 +755,11 @@ export default function App() {
             missingLoading={stream.missingLoading}
             reliabilityData={reliabilityData}
             reliabilityLoading={reliabilityLoading}
+            collapsed={rightCollapsed}
+            onCollapse={() => setRightCollapsed(v => !v)}
           />
         )}
       </div>
-
-      {/* ── Overlay drawer ── */}
-      {activeOverlay && (
-        <div
-          style={{
-            position: "fixed", inset: 0, zIndex: 100,
-            background: "rgba(0,0,0,0.45)",
-            display: "flex", alignItems: "stretch", justifyContent: "flex-start",
-          }}
-          onClick={() => setActiveOverlay(null)}
-        >
-          <div
-            onClick={e => e.stopPropagation()}
-            style={{
-              width: 420, height: "100%",
-              background: C.bg,
-              borderRight: `1px solid ${C.border}`,
-              borderRadius: "0 16px 16px 0",
-              overflow: "auto",
-              animation: "slideInLeft 0.22s ease",
-              marginLeft: 56,
-            }}
-          >
-            {activeOverlay === "network" && (
-              <CitationNetworkTab data={networkData} loading={networkLoading} />
-            )}
-            {activeOverlay === "bias" && (
-              <CitationBiasTab data={biasData} loading={biasLoading} />
-            )}
-            {activeOverlay === "quality" && (
-              <QualityTab data={formatData} loading={formatLoading} />
-            )}
-            {activeOverlay === "integrity" && (
-              <IntegrityTab data={integrityData} loading={integrityLoading} />
-            )}
-            {activeOverlay === "chat" && (
-              <ChatPanel pdfHash={pdfHash} paperTitle={stream.metadata?.title ?? ""} user={user} />
-            )}
-            {activeOverlay === "draft" && (
-              <DraftPanel pdfHash={pdfHash} paperTitle={stream.metadata?.title ?? ""} user={user} />
-            )}
-            {activeOverlay === "actions" && (
-              <div style={{
-                padding: 32, textAlign: "center",
-                color: C.textDim, fontSize: 14,
-              }}>
-                Actions coming soon
-              </div>
-            )}
-            {activeOverlay === "workspace" && (
-              <ReviewWorkspace
-                onClose={() => setActiveOverlay(null)}
-                limitationsData={limitationsData}
-                limitationsLoading={limitationsLoading}
-                statsData={statsData}
-                statsLoading={statsLoading}
-                reviewData={reviewData}
-                reviewLoading={reviewLoading}
-                onGenerateReview={() => { if (currentFile) fetchReview(currentFile); }}
-                paperTitle={stream.metadata?.title}
-              />
-            )}
-          </div>
-        </div>
-      )}
 
       <style>{`
         @keyframes slideInLeft {

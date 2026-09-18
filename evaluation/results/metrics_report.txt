@@ -1,0 +1,128 @@
+=================================================================
+  RefLens AI Detection — Quantitative Evaluation Report
+=================================================================
+
+  Total citations in ground truth : 50
+  Matched by RefLens              : 46
+  Not analyzed (GROBID missed)    : 4
+
+─────────────────────────────────────────────────────────────────
+  Per-paper results
+─────────────────────────────────────────────────────────────────
+  Paper                                  GT Matched ai_likely uncertain   human
+  ----------------------------------- ----- ------- --------- --------- -------
+  test_paper_1.pdf                       10      10         4         1       5
+  test_paper_2.pdf                       10       8         2         2       4
+  test_paper_3.pdf                       10       9         2         2       5
+  test_paper_4.pdf                       10       9         2         2       5
+  test_paper_5.pdf                       10      10         2         2       6
+
+─────────────────────────────────────────────────────────────────
+  aiScore distribution (matched citations only)
+─────────────────────────────────────────────────────────────────
+  Ref     GT        Status  Score  Title                                        
+  ---- -----  ------------  -----  ---------------------------------------------
+  1     REAL         human     30  Attention Is All You Need                    
+  2     REAL         human     30  Deep Residual Learning for Image Recognition 
+  3     REAL         human     30  Generative Adversarial Nets                  
+  4     REAL         human     30  Adam: A Method for Stochastic Optimization   
+  5     REAL         human     30  ImageNet Classification with Deep Convoluti..
+  6     FAKE     ai_likely     70  Adaptive Graph Attention Networks for Multi..
+  7     FAKE     ai_likely     70  Dynamic Sparse Attention in Deep Recurrent ..
+  8     FAKE     ai_likely     70  Probabilistic Neural Architecture Search vi..
+  9     FAKE     uncertain     55  Self-Supervised Pretraining for Semantic Se..
+  10    FAKE     ai_likely     70  Progressive Token Merging for Efficient Vis..
+  2     REAL         human     30  Language Models are Few-Shot Learners        
+  3     REAL         human     30  Long Short-Term Memory                       
+  4     REAL         human     30  Learning Transferable Visual Models From Na..
+  5     REAL         human     30  Dropout: A Simple Way to Prevent Neural Net..
+  6     FAKE     uncertain     55  Hierarchical Transformer Architectures for ..
+  8     FAKE     uncertain     60  Quantum-Inspired Attention Mechanisms for S..
+  9     FAKE     ai_likely     70  Structured Pruning via Gradient Flow Analys..
+  10    FAKE     ai_likely     70  Adaptive Curriculum Learning for Low-Resour..
+  1     REAL         human     30  U-Net: Convolutional Networks for Biomedica..
+  2     REAL         human     30  Very Deep Convolutional Networks for Large-..
+  3     REAL         human     30  Gradient-Based Learning Applied to Document..
+  4     REAL         human     30  An Image is Worth 16x16 Words: Transformers..
+  5     REAL         human     30  Reinforcement Learning: An Introduction      
+  6     FAKE     uncertain     30  Cross-Modal Contrastive Learning for Medica..
+  8     FAKE     ai_likely     70  Causal Representation Learning via Interven..
+  9     FAKE     ai_likely     70  Federated Meta-Learning for Cross-Domain Me..
+  10    FAKE     uncertain     55  Neural Symbolic Reasoning for Visual Questi..
+  1     REAL         human     30  Semi-Supervised Classification with Graph C..
+  2     REAL         human     30  Graph Attention Networks                     
+  3     REAL         human     30  Inductive Representation Learning on Large ..
+  4     REAL         human     30  How Powerful are Graph Neural Networks?      
+  5     REAL         human     30  The Graph Neural Network Model               
+  6     FAKE     ai_likely     70  Adaptive Spectral Graph Convolutions for Dy..
+  7     FAKE     ai_likely     60  Hyperbolic Graph Transformers for Knowledge..
+  8     FAKE     uncertain     55  Multi-Scale Hierarchical Graph Pooling via ..
+  9     FAKE     uncertain     55  Contrastive Graph Structure Learning for Mo..
+  1     REAL         human     30  Communication-Efficient Learning of Deep Ne..
+  2     REAL         human     30  Explaining and Harnessing Adversarial Examp..
+  3     REAL         human     30  Towards Deep Learning Models Resistant to A..
+  4     REAL         human     30  Deep Learning with Differential Privacy      
+  5     REAL         human     30  Membership Inference Attacks Against Machin..
+  6     FAKE     uncertain     60  Asynchronous Federated Optimization with He..
+  7     FAKE     uncertain     60  Differentially Private Gradient Boosting fo..
+  8     FAKE     ai_likely     70  Secure Aggregation with Verifiable Dropout ..
+  9     FAKE         human     30  Byzantine-Robust Federated Learning via Ada..
+  10    FAKE     ai_likely     70  Unlearning in Federated Networks via Select..
+
+─────────────────────────────────────────────────────────────────
+  Confusion Matrix — STRICT (uncertain → REAL)
+─────────────────────────────────────────────────────────────────
+
+                     Predicted FAKE   Predicted REAL
+  Actual FAKE               12                10
+  Actual REAL                0                24
+
+  TP=12  FP=0  FN=10  TN=24  (skipped=0)
+
+  Precision  = TP / (TP+FP) = 12 / 12 = 1.000
+  Recall     = TP / (TP+FN) = 12 / 22 = 0.545
+  F1 Score   = 2*(P*R)/(P+R)              = 0.706
+  Accuracy   = (TP+TN) / total             = 0.783
+
+  Interpretation: MODERATE detection performance (F1=0.71)
+
+─────────────────────────────────────────────────────────────────
+  Confusion Matrix — LENIENT (uncertain → FAKE)
+─────────────────────────────────────────────────────────────────
+
+                     Predicted FAKE   Predicted REAL
+  Actual FAKE               21                 1
+  Actual REAL                0                24
+
+  TP=21  FP=0  FN=1  TN=24  (skipped=0)
+
+  Precision  = TP / (TP+FP) = 21 / 21 = 1.000
+  Recall     = TP / (TP+FN) = 21 / 22 = 0.955
+  F1 Score   = 2*(P*R)/(P+R)              = 0.977
+  Accuracy   = (TP+TN) / total             = 0.978
+
+  Interpretation: STRONG detection performance (F1=0.98)
+
+─────────────────────────────────────────────────────────────────
+  Error Analysis — False Positives and False Negatives
+─────────────────────────────────────────────────────────────────
+
+  False Positives (REAL flagged as ai_likely):
+    None
+
+  False Negatives (FAKE classified as human):
+    [ref 9] score=30 flags=[]
+          "Byzantine-Robust Federated Learning via Adaptive Gradient Clipping"
+
+  Uncertain cases (may warrant manual review):
+    [ref 9] GT=FAKE score=55 "Self-Supervised Pretraining for Semantic Segmentation i"
+    [ref 6] GT=FAKE score=55 "Hierarchical Transformer Architectures for Long Documen"
+    [ref 8] GT=FAKE score=60 "Quantum-Inspired Attention Mechanisms for Sequence Mode"
+    [ref 6] GT=FAKE score=30 "Cross-Modal Contrastive Learning for Medical Image Anal"
+    [ref 10] GT=FAKE score=55 "Neural Symbolic Reasoning for Visual Question Answering"
+    [ref 8] GT=FAKE score=55 "Multi-Scale Hierarchical Graph Pooling via Differentiab"
+    [ref 9] GT=FAKE score=55 "Contrastive Graph Structure Learning for Molecular Prop"
+    [ref 6] GT=FAKE score=60 "Asynchronous Federated Optimization with Heterogeneous "
+    [ref 7] GT=FAKE score=60 "Differentially Private Gradient Boosting for Tabular He"
+
+=================================================================

@@ -43,6 +43,8 @@ export interface ContextPanelProps {
   missingLoading: boolean;
   reliabilityData: ReliabilityData | null;
   reliabilityLoading: boolean;
+  collapsed?: boolean;
+  onCollapse?: () => void;
 }
 
 type TabId = "citations" | "missing" | "reliability";
@@ -358,7 +360,6 @@ function CitationsTabContent({
                   <th style={{ padding: "9px 6px 9px 12px", textAlign: "left", fontSize: 12.5, color: C.textDim, textTransform: "uppercase", letterSpacing: 0.4, width: 42 }}>ID</th>
                   <th style={{ padding: "9px 6px", textAlign: "left", fontSize: 12.5, color: C.textDim, textTransform: "uppercase", letterSpacing: 0.4 }}>Title</th>
                   <th style={{ padding: "9px 6px", textAlign: "center", fontSize: 12.5, color: C.textDim, textTransform: "uppercase", letterSpacing: 0.4, width: 96 }}>Status</th>
-                  <th style={{ padding: "9px 10px 9px 6px", textAlign: "right", fontSize: 12.5, color: C.textDim, textTransform: "uppercase", letterSpacing: 0.4, width: 56 }}>Score</th>
                 </tr>
               </thead>
               <tbody>
@@ -389,12 +390,6 @@ function CitationsTabContent({
                           {cfg.icon} {cfg.label}
                         </span>
                       </td>
-                      <td style={{ padding: "8px 10px 8px 6px", textAlign: "right" }}>
-                        {c.status === "human"
-                          ? <span style={{ fontSize: 13, color: C.green, fontFamily: "monospace" }}>—</span>
-                          : <span style={{ fontSize: 14, fontWeight: 700, fontFamily: "monospace", color: score >= 70 ? C.red : score >= 40 ? C.yellow : C.green }}>{score}%</span>
-                        }
-                      </td>
                     </tr>
                   );
                 })}
@@ -414,11 +409,13 @@ function TabBar({
   onChange,
   missingCount,
   analyzingMissing,
+  onCollapse,
 }: {
   active: TabId;
   onChange: (id: TabId) => void;
   missingCount: number;
   analyzingMissing: boolean;
+  onCollapse?: () => void;
 }) {
   const { C } = useTheme();
   const tabs: { id: TabId; label: string; badge?: number | string }[] = [
@@ -430,7 +427,7 @@ function TabBar({
   return (
     <div style={{
       display: "flex", borderBottom: `1px solid ${C.border}`,
-      background: C.surface, flexShrink: 0,
+      background: C.surface, flexShrink: 0, alignItems: "stretch",
     }}>
       {tabs.map(tab => (
         <button
@@ -464,6 +461,20 @@ function TabBar({
           )}
         </button>
       ))}
+      {/* Collapse button */}
+      <button
+        onClick={onCollapse}
+        title="Collapse sidebar"
+        style={{
+          flexShrink: 0, padding: "0 10px", border: "none",
+          background: "transparent", cursor: "pointer",
+          color: C.textDim, fontSize: 16,
+          borderBottom: "2px solid transparent",
+          transition: "color 0.15s",
+        }}
+        onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = C.text; }}
+        onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = C.textDim; }}
+      >‹</button>
     </div>
   );
 }
@@ -483,6 +494,8 @@ export default function ContextPanel({
   missingLoading,
   reliabilityData,
   reliabilityLoading,
+  collapsed = false,
+  onCollapse,
 }: ContextPanelProps) {
   const { C } = useTheme();
   const [activeTab, setActiveTab] = useState<TabId>("citations");
@@ -513,6 +526,30 @@ export default function ContextPanel({
   const missingHighCount = missingData?.missing_papers?.filter(
     p => p.severity === "critical" || p.severity === "high"
   ).length ?? 0;
+
+  if (collapsed) {
+    return (
+      <div style={{
+        width: 36, flexShrink: 0, height: "100%",
+        background: C.surface, borderLeft: `1px solid ${C.border}`,
+        display: "flex", flexDirection: "column", alignItems: "center",
+        paddingTop: 12, gap: 8,
+      }}>
+        <button
+          onClick={onCollapse}
+          title="Expand sidebar"
+          style={{
+            background: "none", border: `1px solid ${C.border}`, cursor: "pointer",
+            color: C.textDim, fontSize: 14, width: 26, height: 26,
+            borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center",
+            transition: "all 0.15s",
+          }}
+          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = C.text; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = C.textDim; }}
+        >›</button>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -604,6 +641,7 @@ export default function ContextPanel({
               onChange={setActiveTab}
               missingCount={missingHighCount}
               analyzingMissing={missingLoading}
+              onCollapse={onCollapse}
             />
 
             {/* Tab content */}

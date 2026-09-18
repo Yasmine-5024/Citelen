@@ -69,7 +69,6 @@ def save_cache(pdf_hash: str, filename: str, result: dict):
     )
     # Clean up partial citation cache — no longer needed
     conn.execute("DELETE FROM citation_cache WHERE pdf_hash = ?", (pdf_hash,))
-    conn.execute("DELETE FROM grobid_cache WHERE pdf_hash = ?", (pdf_hash,))
     conn.commit()
     conn.close()
     print(f"Cached complete result for {pdf_hash}")

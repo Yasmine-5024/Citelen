@@ -1,0 +1,626 @@
+[
+  {
+    "filename": "test_paper_1.pdf",
+    "topic": "Deep Learning Fundamentals",
+    "matches": [
+      {
+        "gt_ref_num": 1,
+        "gt_title": "Attention Is All You Need",
+        "gt_label": "REAL",
+        "reflens_title": "Attention Is All You Need",
+        "reflens_status": "human",
+        "reflens_score": 30,
+        "reflens_flags": [],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 2,
+        "gt_title": "Deep Residual Learning for Image Recognition",
+        "gt_label": "REAL",
+        "reflens_title": "Deep Residual Learning for Image Recognition",
+        "reflens_status": "human",
+        "reflens_score": 30,
+        "reflens_flags": [],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 3,
+        "gt_title": "Generative Adversarial Nets",
+        "gt_label": "REAL",
+        "reflens_title": "Generative adversarial networks",
+        "reflens_status": "human",
+        "reflens_score": 30,
+        "reflens_flags": [],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 4,
+        "gt_title": "Adam: A Method for Stochastic Optimization",
+        "gt_label": "REAL",
+        "reflens_title": "Adam: A Method for Stochastic Optimization",
+        "reflens_status": "human",
+        "reflens_score": 30,
+        "reflens_flags": [],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 5,
+        "gt_title": "ImageNet Classification with Deep Convolutional Neural Networks",
+        "gt_label": "REAL",
+        "reflens_title": "ImageNet Classification with Deep Convolutional Neural Networks",
+        "reflens_status": "human",
+        "reflens_score": 30,
+        "reflens_flags": [],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 6,
+        "gt_title": "Adaptive Graph Attention Networks for Multi-Modal Feature Fusion",
+        "gt_label": "FAKE",
+        "reflens_title": "Adaptive Graph Attention Networks for Multi-Modal Feature Fusion",
+        "reflens_status": "ai_likely",
+        "reflens_score": 70,
+        "reflens_flags": [
+          "Found in 2 databases but with low title similarity (< 0.4)",
+          "Abstract does not support the context in which the citation is used"
+        ],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 7,
+        "gt_title": "Dynamic Sparse Attention in Deep Recurrent Architectures",
+        "gt_label": "FAKE",
+        "reflens_title": "Dynamic Sparse Attention in Deep Recurrent Architectures",
+        "reflens_status": "ai_likely",
+        "reflens_score": 70,
+        "reflens_flags": [
+          "Found in 2 databases but with low title similarity (0.52)",
+          "Abstract does not match the context in which the citation is used",
+          "No valid DOI provided"
+        ],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 8,
+        "gt_title": "Probabilistic Neural Architecture Search via Bayesian Optimization",
+        "gt_label": "FAKE",
+        "reflens_title": "Probabilistic Neural Architecture Search via Bayesian Optimization",
+        "reflens_status": "ai_likely",
+        "reflens_score": 70,
+        "reflens_flags": [
+          "Found in 2 databases but with low title similarity (0.46)",
+          "Abstract does not match the context in which the citation is used",
+          "No valid DOI provided"
+        ],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 9,
+        "gt_title": "Self-Supervised Pretraining for Semantic Segmentation in Autonomous Driving",
+        "gt_label": "FAKE",
+        "reflens_title": "Self-Supervised Pretraining for Semantic Segmentation in Autonomous Driving",
+        "reflens_status": "uncertain",
+        "reflens_score": 55,
+        "reflens_flags": [
+          "Found in only 2 databases with partial match similarity (0.66)",
+          "No valid DOI provided",
+          "Abstract does not clearly support the claim made in the citation context"
+        ],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 10,
+        "gt_title": "Progressive Token Merging for Efficient Vision Transformers",
+        "gt_label": "FAKE",
+        "reflens_title": "Progressive Token Merging for Efficient Vision Transformers",
+        "reflens_status": "ai_likely",
+        "reflens_score": 70,
+        "reflens_flags": [
+          "Found in 2 databases but with a high similarity match to a different title in CrossRef.",
+          "No valid DOI provided.",
+          "No year provided for the citation.",
+          "Abstract not available to assess relevance."
+        ],
+        "matched": true
+      }
+    ],
+    "unmatched_reflens_results": 1,
+    "elapsed_seconds": 101.5
+  },
+  {
+    "filename": "test_paper_2.pdf",
+    "topic": "Neural Language Models",
+    "matches": [
+      {
+        "gt_ref_num": 2,
+        "gt_title": "Language Models are Few-Shot Learners",
+        "gt_label": "REAL",
+        "reflens_title": "Language Models are Few-Shot Learners",
+        "reflens_status": "human",
+        "reflens_score": 30,
+        "reflens_flags": [],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 3,
+        "gt_title": "Long Short-Term Memory",
+        "gt_label": "REAL",
+        "reflens_title": "Long Short-Term Memory",
+        "reflens_status": "human",
+        "reflens_score": 30,
+        "reflens_flags": [],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 4,
+        "gt_title": "Learning Transferable Visual Models From Natural Language Supervision",
+        "gt_label": "REAL",
+        "reflens_title": "Learning Transferable Visual Models From Natural Language Supervision",
+        "reflens_status": "human",
+        "reflens_score": 30,
+        "reflens_flags": [],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 5,
+        "gt_title": "Dropout: A Simple Way to Prevent Neural Networks from Overfitting",
+        "gt_label": "REAL",
+        "reflens_title": "Dropout: A Simple Way to Prevent Neural Networks from Overfitting",
+        "reflens_status": "human",
+        "reflens_score": 30,
+        "reflens_flags": [],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 6,
+        "gt_title": "Hierarchical Transformer Architectures for Long Document Understanding",
+        "gt_label": "FAKE",
+        "reflens_title": "Hierarchical Transformer Architectures for Long Document Understanding",
+        "reflens_status": "uncertain",
+        "reflens_score": 55,
+        "reflens_flags": [
+          "Found in 2 databases but only one has high similarity; the other has low similarity.",
+          "Abstract does not support the claim made in the citation context."
+        ],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 8,
+        "gt_title": "Quantum-Inspired Attention Mechanisms for Sequence Modelling",
+        "gt_label": "FAKE",
+        "reflens_title": "Quantum-Inspired Attention Mechanisms for Sequence Modelling",
+        "reflens_status": "uncertain",
+        "reflens_score": 60,
+        "reflens_flags": [
+          "Found in 2 databases but with low title similarity (0.52)",
+          "No DOI provided",
+          "No abstract available for relevance assessment"
+        ],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 9,
+        "gt_title": "Structured Pruning via Gradient Flow Analysis in Transformer Models",
+        "gt_label": "FAKE",
+        "reflens_title": "Structured Pruning via Gradient Flow Analysis in Transformer Models",
+        "reflens_status": "ai_likely",
+        "reflens_score": 70,
+        "reflens_flags": [
+          "Found in 2 databases but with low similarity score (0.56)",
+          "Abstract does not support the claim made in the citation context",
+          "No valid DOI provided"
+        ],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 10,
+        "gt_title": "Adaptive Curriculum Learning for Low-Resource Machine Translation",
+        "gt_label": "FAKE",
+        "reflens_title": "Adaptive Curriculum Learning for Low-Resource Machine Translation",
+        "reflens_status": "ai_likely",
+        "reflens_score": 70,
+        "reflens_flags": [
+          "Found in 2 databases but with a high similarity match to a different title.",
+          "Abstract does not support the claim made in the paper.",
+          "Missing year and DOI."
+        ],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 1,
+        "gt_title": "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
+        "gt_label": "REAL",
+        "reflens_title": null,
+        "reflens_status": "not_analyzed",
+        "reflens_score": -1,
+        "reflens_flags": [],
+        "matched": false
+      },
+      {
+        "gt_ref_num": 7,
+        "gt_title": "Scalable Mixture-of-Experts for Natural Language Generation",
+        "gt_label": "FAKE",
+        "reflens_title": null,
+        "reflens_status": "not_analyzed",
+        "reflens_score": -1,
+        "reflens_flags": [],
+        "matched": false
+      }
+    ],
+    "unmatched_reflens_results": 2,
+    "elapsed_seconds": 65.8
+  },
+  {
+    "filename": "test_paper_3.pdf",
+    "topic": "Computer Vision and Medical Imaging",
+    "matches": [
+      {
+        "gt_ref_num": 1,
+        "gt_title": "U-Net: Convolutional Networks for Biomedical Image Segmentation",
+        "gt_label": "REAL",
+        "reflens_title": "U-Net: Convolutional Networks for Biomedical Image Segmentation",
+        "reflens_status": "human",
+        "reflens_score": 30,
+        "reflens_flags": [],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 2,
+        "gt_title": "Very Deep Convolutional Networks for Large-Scale Image Recognition",
+        "gt_label": "REAL",
+        "reflens_title": "Very Deep Convolutional Networks for Large-Scale Image Recognition",
+        "reflens_status": "human",
+        "reflens_score": 30,
+        "reflens_flags": [],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 3,
+        "gt_title": "Gradient-Based Learning Applied to Document Recognition",
+        "gt_label": "REAL",
+        "reflens_title": "Gradient-based learning applied to document recognition",
+        "reflens_status": "human",
+        "reflens_score": 30,
+        "reflens_flags": [],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 4,
+        "gt_title": "An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale",
+        "gt_label": "REAL",
+        "reflens_title": "An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale",
+        "reflens_status": "human",
+        "reflens_score": 30,
+        "reflens_flags": [],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 5,
+        "gt_title": "Reinforcement Learning: An Introduction",
+        "gt_label": "REAL",
+        "reflens_title": "Reinforcement Learning: An Introduction",
+        "reflens_status": "human",
+        "reflens_score": 30,
+        "reflens_flags": [],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 6,
+        "gt_title": "Cross-Modal Contrastive Learning for Medical Image Analysis",
+        "gt_label": "FAKE",
+        "reflens_title": "Cross-Modal Contrastive Learning for Medical Image Analysis",
+        "reflens_status": "uncertain",
+        "reflens_score": 30,
+        "reflens_flags": [
+          "Found in 2 databases with best_similarity >= 0.7 (HIGH MATCH)",
+          "Missing DOI",
+          "No abstract available for relevance assessment"
+        ],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 8,
+        "gt_title": "Causal Representation Learning via Interventional Data Augmentation",
+        "gt_label": "FAKE",
+        "reflens_title": "Causal Representation Learning via Interventional Data Augmentation",
+        "reflens_status": "ai_likely",
+        "reflens_score": 70,
+        "reflens_flags": [
+          "Found in 2 databases but with low title similarity (0.45)",
+          "No valid DOI provided",
+          "Abstract does not support the claim made in the citation context"
+        ],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 9,
+        "gt_title": "Federated Meta-Learning for Cross-Domain Medical Imaging",
+        "gt_label": "FAKE",
+        "reflens_title": "Federated Meta-Learning for Cross-Domain Medical Imaging",
+        "reflens_status": "ai_likely",
+        "reflens_score": 70,
+        "reflens_flags": [
+          "Found in 2 databases with best_similarity < 0.4 (LOW MATCH)",
+          "No valid DOI provided",
+          "Year not provided",
+          "Abstract does not support the citation context"
+        ],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 10,
+        "gt_title": "Neural Symbolic Reasoning for Visual Question Answering in Clinical Settings",
+        "gt_label": "FAKE",
+        "reflens_title": "Neural Symbolic Reasoning for Visual Question Answering in Clinical Settings",
+        "reflens_status": "uncertain",
+        "reflens_score": 55,
+        "reflens_flags": [
+          "Found in 2 databases but only one has a high similarity score; the other has a very low score.",
+          "No DOI provided.",
+          "No abstract available to assess relevance."
+        ],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 7,
+        "gt_title": "Efficient Zero-Shot Transfer with Unified Language-Vision Pretraining",
+        "gt_label": "FAKE",
+        "reflens_title": null,
+        "reflens_status": "not_analyzed",
+        "reflens_score": -1,
+        "reflens_flags": [],
+        "matched": false
+      }
+    ],
+    "unmatched_reflens_results": 1,
+    "elapsed_seconds": 47.1
+  },
+  {
+    "filename": "test_paper_4.pdf",
+    "topic": "Graph Neural Networks",
+    "matches": [
+      {
+        "gt_ref_num": 1,
+        "gt_title": "Semi-Supervised Classification with Graph Convolutional Networks",
+        "gt_label": "REAL",
+        "reflens_title": "Semi-Supervised Classification with Graph Convolutional Networks",
+        "reflens_status": "human",
+        "reflens_score": 30,
+        "reflens_flags": [],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 2,
+        "gt_title": "Graph Attention Networks",
+        "gt_label": "REAL",
+        "reflens_title": "Graph Attention Networks",
+        "reflens_status": "human",
+        "reflens_score": 30,
+        "reflens_flags": [],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 3,
+        "gt_title": "Inductive Representation Learning on Large Graphs",
+        "gt_label": "REAL",
+        "reflens_title": "Inductive Representation Learning on Large Graphs",
+        "reflens_status": "human",
+        "reflens_score": 30,
+        "reflens_flags": [],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 4,
+        "gt_title": "How Powerful are Graph Neural Networks?",
+        "gt_label": "REAL",
+        "reflens_title": "How Powerful are Graph Neural Networks",
+        "reflens_status": "human",
+        "reflens_score": 30,
+        "reflens_flags": [],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 5,
+        "gt_title": "The Graph Neural Network Model",
+        "gt_label": "REAL",
+        "reflens_title": "The Graph Neural Network Model",
+        "reflens_status": "human",
+        "reflens_score": 30,
+        "reflens_flags": [],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 6,
+        "gt_title": "Adaptive Spectral Graph Convolutions for Dynamic Network Embedding",
+        "gt_label": "FAKE",
+        "reflens_title": "Adaptive Spectral Graph Convolutions for Dynamic Network Embedding",
+        "reflens_status": "ai_likely",
+        "reflens_score": 70,
+        "reflens_flags": [
+          "Found in 2 databases but with low similarity (0.50)",
+          "Abstract does not match the context of the citation",
+          "No valid DOI provided"
+        ],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 7,
+        "gt_title": "Hyperbolic Graph Transformers for Knowledge Graph Completion",
+        "gt_label": "FAKE",
+        "reflens_title": "Hyperbolic Graph Transformers for Knowledge Graph Completion",
+        "reflens_status": "ai_likely",
+        "reflens_score": 60,
+        "reflens_flags": [
+          "Found in 2 databases but only one has high similarity; the other has low similarity.",
+          "Abstract does not support the claim made in the citation context."
+        ],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 8,
+        "gt_title": "Multi-Scale Hierarchical Graph Pooling via Differentiable Clustering",
+        "gt_label": "FAKE",
+        "reflens_title": "Multi-Scale Hierarchical Graph Pooling via Differentiable Clustering",
+        "reflens_status": "uncertain",
+        "reflens_score": 55,
+        "reflens_flags": [
+          "Found in 2 databases but with a low match score from OpenAlex",
+          "No valid DOI provided",
+          "Abstract does not support the claim made in the citation context"
+        ],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 9,
+        "gt_title": "Contrastive Graph Structure Learning for Molecular Property Prediction",
+        "gt_label": "FAKE",
+        "reflens_title": "Contrastive Graph Structure Learning for Molecular Property Prediction",
+        "reflens_status": "uncertain",
+        "reflens_score": 55,
+        "reflens_flags": [
+          "Found in 2 databases but only one has high similarity; the other has low similarity.",
+          "No DOI provided.",
+          "No abstract available to assess relevance."
+        ],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 10,
+        "gt_title": "Equivariant Graph Neural Networks via Stochastic Symmetry Breaking",
+        "gt_label": "FAKE",
+        "reflens_title": null,
+        "reflens_status": "not_analyzed",
+        "reflens_score": -1,
+        "reflens_flags": [],
+        "matched": false
+      }
+    ],
+    "unmatched_reflens_results": 1,
+    "elapsed_seconds": 51.9
+  },
+  {
+    "filename": "test_paper_5.pdf",
+    "topic": "Federated Learning and Privacy",
+    "matches": [
+      {
+        "gt_ref_num": 1,
+        "gt_title": "Communication-Efficient Learning of Deep Networks from Decentralized Data",
+        "gt_label": "REAL",
+        "reflens_title": "Communication-Efficient Learning of Deep Networks from Decentralized Data",
+        "reflens_status": "human",
+        "reflens_score": 30,
+        "reflens_flags": [],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 2,
+        "gt_title": "Explaining and Harnessing Adversarial Examples",
+        "gt_label": "REAL",
+        "reflens_title": "Explaining and Harnessing Adversarial Examples",
+        "reflens_status": "human",
+        "reflens_score": 30,
+        "reflens_flags": [],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 3,
+        "gt_title": "Towards Deep Learning Models Resistant to Adversarial Attacks",
+        "gt_label": "REAL",
+        "reflens_title": "Towards Deep Learning Models Resistant to Adversarial Attacks",
+        "reflens_status": "human",
+        "reflens_score": 30,
+        "reflens_flags": [],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 4,
+        "gt_title": "Deep Learning with Differential Privacy",
+        "gt_label": "REAL",
+        "reflens_title": "Deep Learning with Differential Privacy",
+        "reflens_status": "human",
+        "reflens_score": 30,
+        "reflens_flags": [],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 5,
+        "gt_title": "Membership Inference Attacks Against Machine Learning Models",
+        "gt_label": "REAL",
+        "reflens_title": "Membership Inference Attacks Against Machine Learning Models",
+        "reflens_status": "human",
+        "reflens_score": 30,
+        "reflens_flags": [],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 6,
+        "gt_title": "Asynchronous Federated Optimization with Heterogeneous Client Participation",
+        "gt_label": "FAKE",
+        "reflens_title": "Asynchronous Federated Optimization with Heterogeneous Client Participation",
+        "reflens_status": "uncertain",
+        "reflens_score": 60,
+        "reflens_flags": [
+          "Found in only 2 databases with best similarity < 0.7",
+          "No valid DOI provided",
+          "Abstract does not clearly support the claim made in the citation context"
+        ],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 7,
+        "gt_title": "Differentially Private Gradient Boosting for Tabular Healthcare Data",
+        "gt_label": "FAKE",
+        "reflens_title": "Differentially Private Gradient Boosting for Tabular Healthcare Data",
+        "reflens_status": "uncertain",
+        "reflens_score": 60,
+        "reflens_flags": [
+          "Found in only 2 databases with partial match (similarity 0.61)",
+          "No DOI provided",
+          "No abstract available for relevance assessment"
+        ],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 8,
+        "gt_title": "Secure Aggregation with Verifiable Dropout Tolerance in Federated Settings",
+        "gt_label": "FAKE",
+        "reflens_title": "Secure Aggregation with Verifiable Dropout Tolerance in Federated Settings",
+        "reflens_status": "ai_likely",
+        "reflens_score": 70,
+        "reflens_flags": [
+          "Found in only 2 databases with low similarity score (0.55)",
+          "Abstract does not support the claim made in the citation context",
+          "No valid DOI provided"
+        ],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 9,
+        "gt_title": "Byzantine-Robust Federated Learning via Adaptive Gradient Clipping",
+        "gt_label": "FAKE",
+        "reflens_title": "Byzantine-Robust Federated Learning via Adaptive Gradient Clipping",
+        "reflens_status": "human",
+        "reflens_score": 30,
+        "reflens_flags": [],
+        "matched": true
+      },
+      {
+        "gt_ref_num": 10,
+        "gt_title": "Unlearning in Federated Networks via Selective Parameter Resetting",
+        "gt_label": "FAKE",
+        "reflens_title": "Unlearning in Federated Networks via Selective Parameter Resetting",
+        "reflens_status": "ai_likely",
+        "reflens_score": 70,
+        "reflens_flags": [
+          "Found in 2 databases but with low title similarity (< 0.7)",
+          "No DOI provided",
+          "Year not specified",
+          "Best abstract does not relate to the cited context"
+        ],
+        "matched": true
+      }
+    ],
+    "unmatched_reflens_results": 0,
+    "elapsed_seconds": 51.0
+  }
+]
